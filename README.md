@@ -100,14 +100,16 @@ for ending the transaction end(T):
 //validate the transaction
 if(valid){
     commit(T)
+    Print T commits
 }
 else{
     abort(T)
+    Print T aborts
 }
 
 for commit(T):
 vars = get all locked variables for T
-update all available corresponding sites with above vars
+update all available corresponding sites with above vars and set wasDown[vars] to false
 release all locks 
 remove T from waitForGraph
 Parse(vars)
@@ -134,6 +136,34 @@ for(operation: waitQueue){
     }
 }
 
+isSiteUp(operationType,variableNumber):
+if(siteUp){
+    if(operationType == READ){
+        if(wasDown[variableNumeber]) //wasDown is boolean[20] 
+            return false
+        else
+            return true
+    }
+    else{
+        return true
+    }
+}
+else
+    return false
 
+
+recover(Site s)
+s.isSiteUp = true
+s.wasDown = true
+for (operation op: waitSiteDownQueue)
+    if(checkSiteforVariable(op.variable) == s)
+        execute the transaction
+
+fail(Site s)
+s.isSiteUp = false
+{
+    make an accessedAtSite List in the Transaction class
+    at commit time if any of the above site is down then abort the transaction
+}
 
 ```
