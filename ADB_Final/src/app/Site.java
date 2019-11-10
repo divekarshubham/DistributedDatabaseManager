@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 public class Site {
 
-    private ArrayList<Integer> variablesForSite = new ArrayList<>(21);
+    private ArrayList<Variable> variablesForSite = new ArrayList<>(21);
     private boolean isUp;
     private int siteNo;
 
-    public Site(int siteNo){
+    public Site(int siteNo) {
         this.siteNo = siteNo;
         this.isUp = true;
     }
@@ -17,49 +17,46 @@ public class Site {
     public String toString() {
         StringBuffer str = new StringBuffer();
         str.append("siteNo:" + this.siteNo + " isUp:" + this.isUp);
-        int size = variablesForSite.size();
-        for (int i = 0; i < size; i++) {
-            if (variablesForSite.get(i) != null) {
-                str.append(" x" + i + ": " + variablesForSite.get(i) +",");
+        for (Variable var : variablesForSite) {
+            if (var != null) {
+                str.append(" x" + var.getIndex() + ": " + var.getValue() + ",");
             }
-        } 
-        //Remove comma at the end
+        }
+        // Remove comma at the end
         return str.toString();
     }
 
-    public void addVariableToSite(int index, int value){
-        this.variablesForSite.add(index, value);
+    public void addVariableToSite(int index, Variable var) {
+        this.variablesForSite.add(index, var);
     }
 
-    public void viewVariablesForSite(){
-        if(this.isUp) {
-            int size = variablesForSite.size();
-            for (int i = 0; i < size; i++) {
-                if (variablesForSite.get(i) != null) {
-                    System.out.println("variable:" + i + " " + variablesForSite.get(i) + "\n");
+    public void viewVariablesForSite() {
+        if (this.isUp) {
+            for (Variable var : variablesForSite) {
+                if (var != null) {
+                    str.append(" x" + var.getIndex() + ": " + var.getValue() + ",");
                 }
-            } 
-        }
-        else {
+            }
+        } else {
             throw new IllegalArgumentException("The site is down cannot read");
         }
     }
 
-    public int getVariable(int index){
+    public Variable getVariable(int index) {
         return variablesForSite.get(index);
     }
 
-    public boolean isSiteUp(){
+    public boolean isSiteUp() {
         return this.isUp;
     }
 
-    public void siteFail(){
+    public void siteFail() {
         this.isUp = false;
     }
 
-    public void siteRecover(){
+    public void siteRecover() {
         this.isUp = true;
-        //call DM for managing data
+        // call DM for managing data
     }
 
     public int getSiteNo() {

@@ -12,11 +12,13 @@ public class Variable {
     private LockType lockType;
     private boolean isLock;
     private int index;
+    private boolean isCorrupt;
 
     public Variable(int index, int value){
         this.index = index;
         this.value = value;
         this.isLock = false;
+        this.isCorrupt = false;
     }
 
     @Override
@@ -54,6 +56,14 @@ public class Variable {
 
     public boolean isLock() {
         return isLock;
+    }
+
+    public boolean isCorrupt(){
+        return isCorrupt;
+    }
+
+    public boolean setCorrupt(boolean corrupt){
+        this.isCorrupt = corrupt;
     }
 
     public void setLock(Transaction lockedByTransaction, LockType lockType){

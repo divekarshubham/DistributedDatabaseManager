@@ -168,7 +168,8 @@ isSiteUp(operationType,variableNumber):
 
 recover(Site s)
     s.isSiteUp = true
-    s.wasDown = true
+    for(i: replicated variables)
+        s.wasDown[i] = true 
     for (operation op: waitSiteDownQueue)
         if(checkSiteforVariable(op.variable) == s)
             execute the transaction
