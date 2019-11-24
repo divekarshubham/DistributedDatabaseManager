@@ -1,32 +1,49 @@
 package app;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 public class DataManager {
 
+    private final static Logger LOGGER = Logger.getLogger(DataManager.class.getName());
+
     private List<Site> sites = new ArrayList<Site>();
+    //    private HashMap<Integer, ArrayList<Site>> getUpSites = new HashMap<>();
     private static DataManager instance = null;
 
     public DataManager() {
         // initialize all the sites
+        this.sites.add(null);
         for (int i = 1; i < 11; i++) {
             this.sites.add(new Site(i));
         }
         // initialize all the variables
-        for (int i = 1; i <= 20; i++) {
+        for(Site s : sites)
+            for(int i = 1; i <= 20; i++)
+                if(s != null)
+                s.addVariableToSite(i,null);
+
+        for (int i = 1; i <= 20; i++) { //for all variables
             if (i % 2 == 0) {
                 for (Site site : this.sites) {
-                    site.addVariableToSite(i, 10 * i);
+                    Variable var = new Variable(i, 10 * i);
+                    if(site != null)
+                        site.addVariableToSite(i, var);
                 }
             } else {
-                this.sites.get((i % 10) + 1).addVariableToSite(i, 10 * i);
+                Variable var = new Variable(i, 10 * i);
+                int si = (i % 10) + 1;
+                LOGGER.info("var is:" + i +" Site is:" + si);
+                Site s = this.sites.get(si);
+                s.addVariableToSite(i, var);
             }
         }
     }
 
-    public static DataManager getInstance(){
-        if(instance == null)
+    public static DataManager getInstance() {
+        if (instance == null)
             instance = new DataManager();
         return instance;
     }
@@ -34,10 +51,10 @@ public class DataManager {
     public void updateVariableToSite(int variableNumber, int value) {
         if (variableNumber % 2 == 0) {
             for (Site site : this.sites) {
-                site.addVariableToSite(variableNumber, value);
+                site.getVariable(variableNumber).setValue(value);
             }
         } else {
-            this.sites.get((variableNumber % 10) + 1).addVariableToSite(variableNumber, value);
+            this.sites.get((variableNumber % 10) + 1).getVariable(variableNumber).setValue(value);
         }
     }
 
@@ -51,25 +68,33 @@ public class DataManager {
 
     public void dump() {
         for (Site site : sites) {
+            if(site != null)
             System.out.println("site " + site.getSiteNo() + " -" + site.toString() + "\n");
         }
     }
 
-	public void recover(int siteNumber) {
-	}
+    public void recover(int siteNumber) {
+        LOGGER.info("in recover" +siteNumber);
+    }
 
-	public void fail(int siteNumber) {
-	}
+    public void fail(int siteNumber) {
+        LOGGER.info("infail" +siteNumber);
+    }
 
-    public int getValueOfVariable(int variableNumber){
+    public ArrayList<Site> getUpSites(int variableNumber) {
+        ArrayList<Site> availSite = new ArrayList();
         if (variableNumber % 2 == 0) {
             for (Site site : this.sites) {
-                if(site.isSiteUp())
-                    return site.getVariable(variableNumber);
+                if (site.isSiteUp()) {
+                    availSite.add(site);
+                }
             }
         } else {
-            return this.sites.get((variableNumber % 10) + 1).getVariable(variableNumber);
+            Site s =this.sites.get((variableNumber % 10) + 1);
+            if(s.isSiteUp()){
+                availSite.add(s);
+            }
         }
-        return -1;
+        return availSite;
     }
 }

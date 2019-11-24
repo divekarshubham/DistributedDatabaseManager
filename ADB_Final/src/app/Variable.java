@@ -1,14 +1,11 @@
 package app;
 
+import java.util.List;
+
 public class Variable {
 
-    enum LockType
-    {
-        READLOCK, WRITELOCK;
-    }
-
     private int value;
-    private Transaction lockedByTransaction;
+    private List<Transaction> lockedByTransactions;
     private LockType lockType;
     private boolean isLock;
     private int index;
@@ -23,7 +20,7 @@ public class Variable {
 
     @Override
     public String toString() {
-        return "index:"+this.index+" value:"+this.value+" isLock:"+this.isLock+" lockedByTrans: "+lockedByTransaction.getTransaction()+" locktype:"+lockType;
+        return "index:"+this.index+" value:"+this.value+" isLock:"+this.isLock+" lockedByTrans: "+ lockedByTransactions.get(0).getTransactionNumber()+" locktype:"+lockType;
     }
 
     public int getIndex() {
@@ -38,13 +35,10 @@ public class Variable {
         this.value = value;
     }
 
-    public Transaction getLockedByTransaction() {
-        return lockedByTransaction;
+    public List<Transaction> getLockedByTransaction() {
+            return lockedByTransactions;
     }
 
-    public void setLockedByTransaction(Transaction lockedByTransaction) {
-        this.lockedByTransaction = lockedByTransaction;
-    }
 
     public LockType getLockType() {
         return lockType;
@@ -62,12 +56,12 @@ public class Variable {
         return isCorrupt;
     }
 
-    public boolean setCorrupt(boolean corrupt){
+    public void setCorrupt(boolean corrupt){
         this.isCorrupt = corrupt;
     }
 
     public void setLock(Transaction lockedByTransaction, LockType lockType){
-        this.lockedByTransaction = lockedByTransaction;
+        this.lockedByTransactions.add(lockedByTransaction);
         this.lockType = lockType;
         this.isLock = true;
     }

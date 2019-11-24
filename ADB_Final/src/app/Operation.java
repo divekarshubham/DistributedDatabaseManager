@@ -2,17 +2,16 @@ package app;
 
 public class Operation {
 
-    enum operations {
-        READ, READONLY, WRITE;
-    }
 
     private int valueToWrite;
-    private operations operationPerformed;
+    private OperationType operationPerformed;
     private Transaction transaction;
-    
-    public Operation(Transaction transaction, operations operationPerformed, int value) {
+    private int variableNumber;
+
+    public Operation(Transaction transaction, OperationType operationPerformed,int variableNumber,  int value) {
         this.transaction = transaction;
         this.operationPerformed = operationPerformed;
+        this.variableNumber = variableNumber;
         this.valueToWrite = value;
     }
 
@@ -24,8 +23,12 @@ public class Operation {
         return this.valueToWrite;
     }
 
-    public operations getOperation() {
+    public OperationType getOperation() {
         return this.operationPerformed;
+    }
+
+    public int getVariableNumber() {
+        return variableNumber;
     }
 
 }

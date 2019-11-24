@@ -11,6 +11,8 @@ public class Site {
     public Site(int siteNo) {
         this.siteNo = siteNo;
         this.isUp = true;
+        for(int i = 1; i< 21; i++)
+            variablesForSite.add(null);
     }
 
     @Override
@@ -31,12 +33,14 @@ public class Site {
     }
 
     public void viewVariablesForSite() {
+        StringBuffer str = new StringBuffer();
         if (this.isUp) {
             for (Variable var : variablesForSite) {
                 if (var != null) {
                     str.append(" x" + var.getIndex() + ": " + var.getValue() + ",");
                 }
             }
+            System.out.println(str);
         } else {
             throw new IllegalArgumentException("The site is down cannot read");
         }

@@ -1,0 +1,6 @@
+begin(T1)
+beginRO(T2)
+R(T1,x1)
+fail(5)
+end(T1)
+dump()

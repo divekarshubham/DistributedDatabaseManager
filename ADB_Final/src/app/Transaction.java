@@ -20,7 +20,7 @@ public class Transaction {
         return "Transaction: " + this.transactionNumber + " began at: " + formatter.format(this.timestamp);
     }
 
-    public int getTransaction() {
+    public int getTransactionNumber() {
         return this.transactionNumber;
     }
 
