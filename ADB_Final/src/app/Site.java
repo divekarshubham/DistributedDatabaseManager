@@ -1,44 +1,39 @@
 package app;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Site {
 
-    private ArrayList<Variable> variablesForSite = new ArrayList<>(21);
+    private HashMap<Integer, Variable> variablesForSite = new HashMap<>(21);
     private boolean isUp;
     private int siteNo;
 
     public Site(int siteNo) {
         this.siteNo = siteNo;
         this.isUp = true;
-        for(int i = 1; i< 21; i++)
-            variablesForSite.add(null);
     }
 
     @Override
     public String toString() {
         StringBuffer str = new StringBuffer();
         str.append("siteNo:" + this.siteNo + " isUp:" + this.isUp);
-        for (Variable var : variablesForSite) {
-            if (var != null) {
-                str.append(" x" + var.getIndex() + ": " + var.getValue() + ",");
-            }
+        for (Integer i : variablesForSite.keySet()) {
+            str.append(" x" + i + ": " + variablesForSite.get(i) + ",");
         }
         // Remove comma at the end
         return str.toString();
     }
 
     public void addVariableToSite(int index, Variable var) {
-        this.variablesForSite.add(index, var);
+        this.variablesForSite.put(index, var);
     }
 
     public void viewVariablesForSite() {
         StringBuffer str = new StringBuffer();
         if (this.isUp) {
-            for (Variable var : variablesForSite) {
-                if (var != null) {
-                    str.append(" x" + var.getIndex() + ": " + var.getValue() + ",");
-                }
+            for (Integer i : variablesForSite.keySet()) {
+                str.append(" x" + i + ": " + variablesForSite.get(i) + ",");
             }
             System.out.println(str);
         } else {

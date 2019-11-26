@@ -1,5 +1,6 @@
 package app;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Variable {
@@ -16,11 +17,23 @@ public class Variable {
         this.value = value;
         this.isLock = false;
         this.isCorrupt = false;
+        lockedByTransactions = new ArrayList<>();
+        lockType = null;
     }
 
     @Override
     public String toString() {
-        return "index:"+this.index+" value:"+this.value+" isLock:"+this.isLock+" lockedByTrans: "+ lockedByTransactions.get(0).getTransactionNumber()+" locktype:"+lockType;
+        StringBuffer str = new StringBuffer();
+        str.append("index:"+this.index+" value:"+this.value+" isLock:"+this.isLock+" lockedByTrans: ");
+        if(!lockedByTransactions.isEmpty()) {
+            for (Transaction trans : lockedByTransactions) {
+                str.append(" " + trans.getTransactionNumber());
+            }
+            str.append(" locktype:"+lockType);
+        }
+
+
+        return str.toString();
     }
 
     public int getIndex() {

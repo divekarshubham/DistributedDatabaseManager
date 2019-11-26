@@ -10,6 +10,7 @@ public class TransactionManager {
 
     private final static Logger LOGGER = Logger.getLogger(DataManager.class.getName());
     private Map<Integer, Transaction> activeTransactions;
+    private Map<Integer, ArrayList<Integer>> readOnlyLastCommitedValue = new HashMap<>(); //transactionNumber, LastReadValue
     private List<Variable> tempVariables;
     private DataManager dm;
     private List<Operation> waitQueue;
@@ -35,6 +36,7 @@ public class TransactionManager {
 
     public void beginRO(int transactionNumber) {
         activeTransactions.put(transactionNumber, new Transaction(transactionNumber, true));
+        readOnlyLastCommitedValue.put(transactionNumber, dm.lastCommitedValuesForReadOnly());
         System.out.println("in beginro");
     }
 
@@ -83,7 +85,7 @@ public class TransactionManager {
 
     private void setLock(ArrayList<Site> upSites, Operation op){
         for(Site site: upSites){
-            if(op.getOperation() == OperationType.READ)
+            if (op.getOperation() == OperationType.READ)
                 site.getVariable(op.getVariableNumber()).setLock(op.getTransaction(), LockType.READLOCK);
             else
                 site.getVariable(op.getVariableNumber()).setLock(op.getTransaction(), LockType.WRITELOCK);
@@ -98,13 +100,13 @@ public class TransactionManager {
             return;
         }
         else{
-            Variable variable = upSites.get(0).getVariable(op.getVariableNumber());
 
+            Variable variable = upSites.get(0).getVariable(op.getVariableNumber());
             if(isLockedCount(upSites, op) == 0){ //all unlocked
                 setLock(upSites, op);
                 System.out.println("x"+op.getVariableNumber()+" : "+variable.getValue());
             }
-            else if(variable.getLockType() == LockType.WRITELOCK && op.getTransaction() != variable.getLockedByTransaction().get(0)){
+            else if(variable.getLockType() == LockType.WRITELOCK && op.getTransaction() != variable.getLockedByTransaction().get(0)){ //if not locked same transaction, write lock only has 1 transaction
                 //parsing
                 waitQueue.add(op);
                 //Add to waitforgraph
@@ -119,7 +121,7 @@ public class TransactionManager {
                 else{
                     boolean inWaitQueue = false;
                     for(Operation o: waitQueue) {
-                        if (o.getVariableNumber() == op.getVariableNumber()) {
+                        if (o.getVariableNumber() == op.getVariableNumber()) { //dont skip writes
                             inWaitQueue = true;
                             break;
                         }
@@ -137,13 +139,18 @@ public class TransactionManager {
 
                 }
             }
-
         }
-
     }
+
     public void readOnly(Operation op){
         System.out.println("in readonly");
-
+        int readValue = readOnlyLastCommitedValue.get(op.getTransaction().getTransactionNumber()).get(op.getVariableNumber()-1);
+        if(readValue != Integer.MIN_VALUE) {
+            System.out.println("x" + op.getVariableNumber() + " : " + readValue);
+        }
+        else{
+            waitSiteDownQueue.add(op);
+        }
     }
 
 
