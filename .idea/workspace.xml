@@ -2,19 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f9220279-1e03-4902-b017-593db8596a62" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ADB_Final/src/app/DataManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/ADB_Final/src/app/DataManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ADB_Final/src/app/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/ADB_Final/src/app/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ADB_Final/src/app/Operation.java" beforeDir="false" afterPath="$PROJECT_DIR$/ADB_Final/src/app/Operation.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ADB_Final/src/app/Transaction.java" beforeDir="false" afterPath="$PROJECT_DIR$/ADB_Final/src/app/Transaction.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ADB_Final/src/app/TransactionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/ADB_Final/src/app/TransactionManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ADB_Final/src/app/Variable.java" beforeDir="false" afterPath="$PROJECT_DIR$/ADB_Final/src/app/Variable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ADB_Final/app/DataManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ADB_Final/app/DataManager.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ADB_Final/app/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ADB_Final/app/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ADB_Final/app/Operation.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ADB_Final/app/Operation.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ADB_Final/app/TransactionManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ADB_Final/app/TransactionManager.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ADB_Final/app/Variable.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ADB_Final/app/Variable.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/testfileadb.txt" beforeDir="false" afterPath="$PROJECT_DIR$/testfileadb.txt" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -41,11 +29,11 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ADB_Final/src/app/TransactionManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="163">
-              <caret line="217" column="12" selection-start-line="217" selection-start-column="12" selection-end-line="217" selection-end-column="12" />
+            <state relative-caret-position="354">
+              <caret line="81" column="53" lean-forward="true" selection-start-line="81" selection-start-column="53" selection-end-line="81" selection-end-column="53" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#3799#3800#0" expanded="true" />
+                <element signature="e#3808#3809#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -235,7 +223,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1574824256772" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1574828205318" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -565,11 +553,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ADB_Final/src/app/TransactionManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="163">
-          <caret line="217" column="12" selection-start-line="217" selection-start-column="12" selection-end-line="217" selection-end-column="12" />
+        <state relative-caret-position="354">
+          <caret line="81" column="53" lean-forward="true" selection-start-line="81" selection-start-column="53" selection-end-line="81" selection-end-column="53" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#3799#3800#0" expanded="true" />
+            <element signature="e#3808#3809#0" expanded="true" />
           </folding>
         </state>
       </provider>

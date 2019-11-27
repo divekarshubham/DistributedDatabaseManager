@@ -11,7 +11,7 @@ public class TransactionManager {
     private final static Logger LOGGER = Logger.getLogger(TransactionManager.class.getName());
     private Map<Integer, Transaction> activeTransactions;
     private Map<Integer, ArrayList<Integer>> readOnlyLastCommitedValue = new HashMap<>(); //transactionNumber, LastReadValue
-    private List<Integer, Variable> tempVariables; //make ints
+    private Map<Integer, Variable> tempVariables; //make ints
     private DataManager dm;
     private List<Operation> waitQueue;
     private List<Operation> waitSiteDownQueue;
@@ -19,7 +19,7 @@ public class TransactionManager {
     public TransactionManager() {
         dm = DataManager.getInstance();
         activeTransactions = new HashMap<>();
-        tempVariables = new ArrayList<>(21);
+        tempVariables = new HashMap<>();
         waitQueue = new ArrayList<>();
         waitSiteDownQueue = new ArrayList<>();
 
@@ -92,9 +92,9 @@ public class TransactionManager {
             dm.removeLocks(op.getVariableNumber(), op.getTransaction());
         }
         dm.dump();
-        for(int i=0;i<tempVariables.size();i++){
-            System.out.println(i+"  "+tempVariables.get(i));
-        }
+//        for(int tempV : tempVariables.keySet()){
+//            System.out.println(tempV+"  "+tempVariables.get(tempV));
+//        }
     }
 
     public  Transaction getActiveTransactions(int transNumber) {
@@ -173,7 +173,7 @@ public class TransactionManager {
                 //deadlock detection
             }
             else if(variable.getLockType() == LockType.WRITELOCK && op.getTransaction() == variable.getLockedByTransaction().get(0)){
-                LOGGER.info("x"+op.getVariableNumber()+" : "+tempVariables.get(op.getVariableNumber()).getValue();
+                LOGGER.info("x"+op.getVariableNumber()+" : "+tempVariables.get(op.getVariableNumber()).getValue());
             }
             else if(variable.getLockType() == LockType.READLOCK){
                 if(variable.getLockedByTransaction().contains(op.getTransaction()))
