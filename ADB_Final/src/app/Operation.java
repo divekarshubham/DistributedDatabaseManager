@@ -15,6 +15,11 @@ public class Operation {
         this.valueToWrite = value;
     }
 
+    @Override
+    public String toString(){
+        return "Operation details: "+this.transaction+" operation type:" + this.operationPerformed +" variable:" + this.variableNumber+ (this.operationPerformed==OperationType.WRITE? " Val:"+this.valueToWrite: " ");
+    }
+
     public Transaction getTransaction() {
         return this.transaction;
     }

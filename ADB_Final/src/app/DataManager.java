@@ -4,11 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DataManager {
 
     private final static Logger LOGGER = Logger.getLogger(DataManager.class.getName());
+
 
     private Map<Integer, Site> sites = new HashMap<Integer, Site>();
     //    private HashMap<Integer, ArrayList<Site>> getUpSites = new HashMap<>();
@@ -112,5 +114,20 @@ public class DataManager {
             }
         }
         return availSite;
+    }
+
+    public void removeLocks(int variableNumber, Transaction transaction){
+        if (variableNumber % 2 == 0) {
+            for (Site site : sites.values()) {
+                if (site.isSiteUp() ) {
+                    site.getVariable(variableNumber).removeLockByTransaction(transaction);
+                }
+            }
+        } else {
+            Site s =this.sites.get((variableNumber % 10) + 1);
+            if(s.isSiteUp()){
+                s.getVariable(variableNumber).removeLockByTransaction(transaction);
+            }
+        }
     }
 }

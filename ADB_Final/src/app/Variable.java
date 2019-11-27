@@ -79,11 +79,24 @@ public class Variable {
         this.isLock = true;
     }
 
+    public void promoteLock(){
+        this.lockType = LockType.WRITELOCK;
+    }
+
     public void unlock(){
         if(this.isLock)
             this.isLock = false;
         else {
             throw new IllegalArgumentException("variable has no lock");
         }
+    }
+
+    public void removeLockByTransaction(Transaction transaction) {
+        lockedByTransactions.remove(transaction);
+        if(lockedByTransactions.size() == 0) {
+            this.isLock = false;
+            this.lockType = null;
+        }
+
     }
 }

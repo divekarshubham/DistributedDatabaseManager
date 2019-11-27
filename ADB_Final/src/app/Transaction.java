@@ -1,12 +1,15 @@
 package app;
 
 import java.util.Date;
-import java.text.SimpleDateFormat;  
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Transaction {
     private int transactionNumber;
     private Date timestamp;
     private boolean isReadOnly;
+    private Map<Operation, Site> variablesLocked = new HashMap<>(); //map<variable, site>
 
     public Transaction(int transactionNumber, boolean isReadOnly) {
         this.transactionNumber = transactionNumber;
@@ -32,5 +35,11 @@ public class Transaction {
         return this.isReadOnly;
     }
 
+    public Map<Operation, Site> getVariablesLocked() {
+        return variablesLocked;
+    }
+    public void addVariableLocked(Operation op, Site s) {
+        this.variablesLocked.put(op,s);
+    }
 
 }
