@@ -22,6 +22,8 @@ class Graph {
     }
 
     public void addEdge(long id1, long id2) {
+        if(id1 == id2)
+            return;
         Vertex vertex1 = null;
         if (allVertex.containsKey(id1)) {
             vertex1 = allVertex.get(id1);
@@ -51,7 +53,7 @@ class Graph {
         return allVertex.values();
     }
 
-    public List<Vertex> hasCycle() {
+    public List<Integer> hasCycle() {
         Set<Vertex> whiteSet = new HashSet<>();
         Map<Vertex, Vertex> graySet = new HashMap<>();
         Set<Vertex> blackSet = new HashSet<>();

@@ -7,27 +7,27 @@ import java.util.Map;
 
 public class Transaction {
     private int transactionNumber;
-    private Date timestamp;
+    private int timestamp;
     private boolean isReadOnly;
     private Map<Operation, Site> variablesLocked = new HashMap<>(); //map<variable, site>
 
-    public Transaction(int transactionNumber, boolean isReadOnly) {
+    public Transaction(int transactionNumber, boolean isReadOnly, int arrivalTime) {
         this.transactionNumber = transactionNumber;
-        this.timestamp = new Date();
+        this.timestamp = arrivalTime;
         this.isReadOnly = isReadOnly;
     }
 
     @Override
     public String toString() {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss"); 
-        return "Transaction: " + this.transactionNumber + " began at: " + formatter.format(this.timestamp);
+
+        return "Transaction: " + this.transactionNumber + " began at: " + this.timestamp;
     }
 
     public int getTransactionNumber() {
         return this.transactionNumber;
     }
 
-    public Date getTimeStamp() {
+    public int getTimeStamp() {
         return this.timestamp;
     }
 
