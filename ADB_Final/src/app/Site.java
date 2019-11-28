@@ -58,8 +58,23 @@ public class Site {
         // call DM for managing data
     }
 
+    public void makeVariablesCorruptAndDeleteLockTable(){
+        for(Variable var: variablesForSite.values()){
+            var.setCorrupt(true);
+            var.removeAllLocks();
+        }
+    }
+
+    public void makeVariableNonCorrupt(Variable var){
+        var.setCorrupt(false);
+    }
+
     public int getSiteNo() {
         return siteNo;
+    }
+
+    public boolean checkVariableIsCorrupt(int variableNo) {
+        return variablesForSite.get(variableNo).isCorrupt();
     }
 
 }

@@ -11,7 +11,6 @@ public class DataManager {
 
     private final static Logger LOGGER = Logger.getLogger(DataManager.class.getName());
 
-
     private Map<Integer, Site> sites = new HashMap<Integer, Site>();
     //    private HashMap<Integer, ArrayList<Site>> getUpSites = new HashMap<>();
     private static DataManager instance = null;
@@ -46,34 +45,39 @@ public class DataManager {
 
     public void updateVariableToSite(int variableNumber, int value) {
         if (variableNumber % 2 == 0) {
-            for (Integer siteNo : this.sites.keySet()) {
-                sites.get(siteNo).getVariable(variableNumber).setValue(value);
+            for (Site s : this.sites.values()) {
+                if(s.isSiteUp()) {
+                    Variable v = s.getVariable(variableNumber);
+                    v.setValue(value);
+                    v.setCorrupt(false);
+                }
             }
         } else {
-            this.sites.get((variableNumber % 10) + 1).getVariable(variableNumber).setValue(value);
+            Site s =this.sites.get((variableNumber % 10) + 1);
+            if(s.isSiteUp()) {
+                Variable v = s.getVariable(variableNumber);
+                v.setValue(value);
+                v.setCorrupt(false);
+            }
         }
     }
 
-    public void onFail(Site s) {
-
+    public void onFail(int siteNo) {
+        Site s = sites.get(siteNo);
+        s.siteFail();
+        s.makeVariablesCorruptAndDeleteLockTable();
     }
 
-    public void onRecovery(Site s) {
-
+    public Site onRecovery(int siteNo) {
+        Site s = sites.get(siteNo);
+        s.siteRecover();
+        return s;
     }
 
     public void dump() {
         for (Integer siteNo : sites.keySet()) {
             System.out.println("site " + siteNo + " -" + sites.get(siteNo).toString() + "\n");
         }
-    }
-
-    public void recover(int siteNumber) {
-        LOGGER.info("in recover" +siteNumber);
-    }
-
-    public void fail(int siteNumber) {
-        LOGGER.info("infail" +siteNumber);
     }
 
     public ArrayList<Integer> lastCommitedValuesForReadOnly(){
@@ -97,6 +101,10 @@ public class DataManager {
                 return s.getVariable(variableNumber).getValue();
         }
         return Integer.MIN_VALUE;
+    }
+
+    public Site getSite(int siteNo){
+        return sites.get(siteNo);
     }
 
     public ArrayList<Site> getUpSites(int variableNumber) {

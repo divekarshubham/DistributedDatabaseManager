@@ -97,6 +97,11 @@ public class Variable {
             this.isLock = false;
             this.lockType = null;
         }
+    }
 
+    public void removeAllLocks() {
+        lockedByTransactions.clear();
+        isLock = false;
+        lockType = null;
     }
 }

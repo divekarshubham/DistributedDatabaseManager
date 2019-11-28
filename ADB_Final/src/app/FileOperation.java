@@ -38,11 +38,11 @@ public class FileOperation {
                        break;
                    case "fail":
                        siteNumber = Integer.parseInt(line.substring(line.indexOf("(")+1, line.indexOf(")")));
-                       dm.fail(siteNumber);
+                       tm.fail(siteNumber);
                        break;
                    case "recover":
                        siteNumber = Integer.parseInt(line.substring(line.indexOf("(")+1, line.indexOf(")")));
-                       dm.recover(siteNumber);
+                       tm.recover(siteNumber);
                        break;
                    case "R":
                        transNumber = Integer.parseInt(line.substring(line.indexOf("T")+1, line.indexOf(",")));

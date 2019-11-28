@@ -12,10 +12,12 @@ public class TransactionManager {
     private Map<Integer, Variable> tempVariables; // make ints
     private DataManager dm;
     private ArrayList<Operation> waitQueue;
-    private List<Operation> waitSiteDownQueue;
+    private ArrayList<Operation> waitSiteDownQueue;
     private Graph waitForGraph;
     private int timer = 0;
     private boolean parsing = false;
+    ArrayList<Transaction> abortTransaction = new ArrayList<>();
+
 
     public TransactionManager() {
         dm = DataManager.getInstance();
@@ -28,8 +30,38 @@ public class TransactionManager {
         for (int i = 1; i < 21; i++) {
             tempVariables.put(i, new Variable(i, 10 * i));
         }
+    }
 
 
+    public void recover(int siteNumber) {
+        LOGGER.info("in recover" +siteNumber);
+        Site s = dm.onRecovery(siteNumber);
+        executeSiteDownQueueOperations(s);
+    }
+
+    public void fail(int siteNumber) {
+        LOGGER.info("infail" +siteNumber);
+        for(Transaction t: activeTransactions.values()){
+            Map<Operation, Site> lockedVariables = t.getVariablesLocked();
+            for(Operation op : lockedVariables.keySet()){
+                if(dm.getUpSites(op.getVariableNumber()).contains(dm.getSite(siteNumber))){
+                    abortTransaction.add(t);
+                    break;
+                }
+            }
+        }
+        dm.onFail(siteNumber);
+    }
+
+    public void executeSiteDownQueueOperations(Site s){
+        ArrayList<Operation> waitRecovTemp = new ArrayList<>();
+        waitRecovTemp = (ArrayList) waitSiteDownQueue.clone();
+        for(Operation op: waitRecovTemp){
+            if(dm.getUpSites(op.getVariableNumber()).contains(s)){
+                addAndExecuteOperation(op);
+                waitSiteDownQueue.remove(op);
+            }
+        }
     }
 
     public void begin(int transactionNumber) {
@@ -46,13 +78,20 @@ public class TransactionManager {
     public void end(int transactionNumber) {
         LOGGER.fine("in end");
         Transaction t = activeTransactions.get(transactionNumber);
+        if(abortTransaction.contains(t)){
+            LOGGER.info("As this transaction read/write from site that failed");
+            abort(t.getTransactionNumber());
+            abortTransaction.remove(t);
+            return;
+        }
+
         System.out.println(t.toString());
         System.out.println(waitQueue);
         Map<Operation, Site> lockedVariables = t.getVariablesLocked();
         for (Map.Entry<Operation, Site> entry : lockedVariables.entrySet()) {
             System.out.println(entry);
             if (!entry.getValue().isSiteUp()) {
-                System.out.println("due to site down");
+                LOGGER.info("due to site down");
                 abort(transactionNumber);
                 return;
             }
@@ -79,7 +118,6 @@ public class TransactionManager {
                     else{
                         waitQueue.remove(op);
                     }
-
                 }
             }
         }
@@ -214,16 +252,29 @@ public class TransactionManager {
 
     public void read(Operation op) {
         LOGGER.fine("in read");
+        Site validSite = null;
         ArrayList<Site> upSites = dm.getUpSites(op.getVariableNumber());
         if (upSites.isEmpty()) {
             LOGGER.fine("All corresponding sites down, adding [" + op + "] to wait for sites waitQueue");
             waitSiteDownQueue.add(op);
             return;
-        } else {
-            Variable variable = upSites.get(0).getVariable(op.getVariableNumber());
+        }
+        else if(upSites.size() == 1){
+            validSite = upSites.get(0);
+        }
+        else {
+            for (Site s : upSites) {
+                if (!s.checkVariableIsCorrupt(op.getVariableNumber())) {
+                    validSite = s;
+                    break;
+                }
+            }
+        }
+        if(validSite !=null) {
+            Variable variable = validSite.getVariable(op.getVariableNumber());
             if (isLockedCount(upSites, op) == 0) { // all unlocked
                 setLock(upSites, op);
-                op.getTransaction().addVariableLocked(op, upSites.get(0));
+                op.getTransaction().addVariableLocked(op, validSite);
                 LOGGER.info("x" + op.getVariableNumber() + " : " + variable.getValue());
             } else if (variable.getLockType() == LockType.WRITELOCK
                     && op.getTransaction() != variable.getLockedByTransaction().get(0)) { // if not locked same
@@ -276,12 +327,15 @@ public class TransactionManager {
                         }
                     } else {
                         setLock(upSites, op);
-                        op.getTransaction().addVariableLocked(op, upSites.get(0));
+                        op.getTransaction().addVariableLocked(op, validSite);
                         LOGGER.info("x" + op.getVariableNumber() + " : " + variable.getValue());
                     }
 
                 }
             }
+        }
+        else{
+            waitSiteDownQueue.add(op);
         }
     }
 
