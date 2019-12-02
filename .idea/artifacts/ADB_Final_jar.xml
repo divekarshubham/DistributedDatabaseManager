@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ADB_Final:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/ADB_Final_jar</output-path>
+    <root id="archive" name="ADB_Final.jar">
+      <element id="module-output" name="ADB_Final" />
+    </root>
+  </artifact>
+</component>

@@ -1,5 +1,6 @@
 package app;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -9,7 +10,7 @@ public class Transaction {
     private int transactionNumber;
     private int timestamp;
     private boolean isReadOnly;
-    private Map<Operation, Site> variablesLocked = new HashMap<>(); //map<variable, site>
+    private Map<Operation, ArrayList<Site>> variablesLocked = new HashMap<>(); //map<variable, site>
 
     public Transaction(int transactionNumber, boolean isReadOnly, int arrivalTime) {
         this.transactionNumber = transactionNumber;
@@ -35,10 +36,10 @@ public class Transaction {
         return this.isReadOnly;
     }
 
-    public Map<Operation, Site> getVariablesLocked() {
+    public Map<Operation, ArrayList<Site>> getVariablesLocked() {
         return variablesLocked;
     }
-    public void addVariableLocked(Operation op, Site s) {
+    public void addVariableLocked(Operation op, ArrayList<Site> s) {
         this.variablesLocked.put(op,s);
     }
 

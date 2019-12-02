@@ -19,6 +19,7 @@ public class FileOperation {
        try (BufferedReader br = new BufferedReader(new FileReader(filepath))) {
            String line;
            while ((line = br.readLine()) != null) {
+               line = line.replace(" ","");
                String transaction = line.substring(0, line.indexOf("("));
                switch (transaction){
                    case "begin":

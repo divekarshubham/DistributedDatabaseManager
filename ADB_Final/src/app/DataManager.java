@@ -1,9 +1,6 @@
 package app;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -137,5 +134,15 @@ public class DataManager {
                 s.getVariable(variableNumber).removeLockByTransaction(transaction);
             }
         }
+    }
+
+    public void updateVariableToParticularSite(int variableNumber, int value, ArrayList<Site> upsites) {
+            for (Site s : upsites) {
+                if(s.isSiteUp()) {
+                    Variable v = s.getVariable(variableNumber);
+                    v.setValue(value);
+                    v.setCorrupt(false);
+                }
+            }
     }
 }
