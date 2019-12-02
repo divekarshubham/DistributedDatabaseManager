@@ -19,7 +19,6 @@ public class TransactionManager {
     private boolean parsing = false;
     ArrayList<Transaction> abortTransaction = new ArrayList<>();
 
-
     public TransactionManager() {
         dm = DataManager.getInstance();
         activeTransactions = new HashMap<>();

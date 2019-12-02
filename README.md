@@ -1,7 +1,10 @@
 # DistributedDatabaseManager
-#Algorithms used for the Database Manager
+# TO FIX
+DataManager has two methods updateVariables to sites and particular site
 
-####For read intstruction R(T, V):
+# Algorithms used for the Database Manager
+
+#### For read intstruction R(T, V):
 ```
 decideRead():
     if (transactiontype == read)
@@ -54,7 +57,7 @@ read():
         }
     }
 ```
-####For write instruction W(T, V, x):
+#### For write instruction W(T, V, x):
 ```
 write():
     if(none of the sites are up)
@@ -93,7 +96,7 @@ write():
         }
     }
 ```
-####Checking deadlock after adding to waitForGraph 
+#### Checking deadlock after adding to waitForGraph 
 ```
 DeadlockDetection(waitForGraph):
     check for cycle similar to https://www.geeksforgeeks.org/detect-cycle-in-a-graph/ using HashMap
@@ -105,7 +108,7 @@ DeadlockDetection(waitForGraph):
     }
 ```
 
-####For ending the transaction 
+#### For ending the transaction 
 ```
 end(T):
     //validate the transaction
@@ -147,7 +150,7 @@ Parse(vars):
         }
     }
 ```
-####Site Handling operations
+#### Site Handling operations
 ```
 //if the site was downn then the next read operation will find the site to be down
 isSiteUp(operationType,variableNumber):

@@ -6,7 +6,12 @@ import java.io.PrintStream;
 import java.util.logging.*;
 
 public class Main {
-    public static void main(String args[]){
+    /**
+     * 
+     * @param args[1]: input file
+     * @param args[2]: output file
+     */
+   public static void main(String args[]){
         Logger rootLogger = LogManager.getLogManager().getLogger("");
         FileHandler fh;
         rootLogger.setLevel(Level.FINE);
