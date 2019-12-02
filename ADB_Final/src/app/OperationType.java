@@ -1,5 +1,6 @@
 package app;
 
-public enum OperationType {
+public enum OperationType
+{
     READ, READONLY, WRITE;
 }

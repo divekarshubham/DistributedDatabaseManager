@@ -1,12 +1,12 @@
 /**
  * @file TransactionManager.java
  * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
- * @brief Main driver of the program which is responsible for executing the operations and queing them if needed. It also manages the life cycle of each transaction. 
+ * @brief Main driver of the program which is responsible for executing the operations and queing them if needed. It also manages the life cycle of each transaction.
  * @version 0.1
  * @date 2019-12-02
- * 
+ *
  * @copyright Copyright (c) 2019
- * 
+ *
  */
 package app;
 
@@ -15,12 +15,11 @@ import java.util.*;
 import java.util.logging.Logger;
 
 public class TransactionManager {
-
-    private final static Logger LOGGER = Logger.getLogger(TransactionManager.class.getName());
+    private final static Logger LOGGER = Logger.getLogger( TransactionManager.class.getName() );
     private Map<Integer, Transaction> activeTransactions;
-    private Map<Integer, ArrayList<Integer>> readOnlyLastCommitedValue = new HashMap<>(); // transactionNumber,
-                                                                                          // LastReadValue
-    private Map<Integer, Variable> tempVariables; // make ints
+    private Map<Integer, ArrayList<Integer> > readOnlyLastCommitedValue = new HashMap<>(); /* transactionNumber, */
+                                                                                           /* LastReadValue */
+    private Map<Integer, Variable> tempVariables;                                          /* make ints */
     private DataManager dm;
     private ArrayList<Operation> waitQueue;
     private ArrayList<Operation> waitSiteDownQueue;
@@ -29,7 +28,8 @@ public class TransactionManager {
     private boolean parsing = false;
     ArrayList<Transaction> abortTransaction = new ArrayList<>();
 
-    public TransactionManager() {
+    public TransactionManager()
+    {
         dm = DataManager.getInstance();
         activeTransactions = new HashMap<>();
         tempVariables = new HashMap<>();
@@ -37,409 +37,575 @@ public class TransactionManager {
         waitSiteDownQueue = new ArrayList<>();
         waitForGraph = new Graph();
 
-        for (int i = 1; i < 21; i++) {
-            tempVariables.put(i, new Variable(i, 10 * i));
+        for( int i = 1; i < 21; i++ )
+        {
+            tempVariables.put( i, new Variable( i, 10 * i ) );
         }
     }
 
-
-    public void recover(int siteNumber) {
-        LOGGER.fine("in recover" +siteNumber);
-        Site s = dm.onRecovery(siteNumber);
-        executeSiteDownQueueOperations(s);
+    public void recover( int siteNumber )
+    {
+        LOGGER.fine( "in recover" + siteNumber );
+        Site s = dm.onRecovery( siteNumber );
+        executeSiteDownQueueOperations( s );
     }
 
-    public void fail(int siteNumber) {
-        LOGGER.fine("infail" +siteNumber);
-        for(Transaction t: activeTransactions.values()){
-            Map<Operation, ArrayList<Site>> lockedVariables = t.getVariablesLocked();
-            for(Operation op : lockedVariables.keySet()){
-                if(dm.getUpSites(op.getVariableNumber()).contains(dm.getSite(siteNumber))){
-                    abortTransaction.add(t);
+    public void fail( int siteNumber )
+    {
+        LOGGER.fine( "infail" + siteNumber );
+
+        for( Transaction t: activeTransactions.values() )
+        {
+            Map<Operation, ArrayList<Site> > lockedVariables = t.getVariablesLocked();
+
+            for( Operation op : lockedVariables.keySet() )
+            {
+                if( dm.getUpSites( op.getVariableNumber() ).contains( dm.getSite( siteNumber ) ) )
+                {
+                    abortTransaction.add( t );
                     break;
                 }
             }
         }
-        dm.onFail(siteNumber);
+
+        dm.onFail( siteNumber );
     }
 
-    public void executeSiteDownQueueOperations(Site s){
+    public void executeSiteDownQueueOperations( Site s )
+    {
         ArrayList<Operation> waitRecovTemp = new ArrayList<>();
-        waitRecovTemp = (ArrayList) waitSiteDownQueue.clone();
-        for(Operation op: waitRecovTemp){
-            if(dm.getUpSites(op.getVariableNumber()).contains(s)){
-                addAndExecuteOperation(op);
-                waitSiteDownQueue.remove(op);
+
+        waitRecovTemp = ( ArrayList ) waitSiteDownQueue.clone();
+
+        for( Operation op: waitRecovTemp )
+        {
+            if( dm.getUpSites( op.getVariableNumber() ).contains( s ) )
+            {
+                addAndExecuteOperation( op );
+                waitSiteDownQueue.remove( op );
             }
         }
     }
 
-    public void begin(int transactionNumber) {
-        activeTransactions.put(transactionNumber, new Transaction(transactionNumber, false, timer++));
-        LOGGER.fine("in begin");
+    public void begin( int transactionNumber )
+    {
+        activeTransactions.put( transactionNumber, new Transaction( transactionNumber, false, timer++ ) );
+        LOGGER.fine( "in begin" );
     }
 
-    public void beginRO(int transactionNumber) {
-        activeTransactions.put(transactionNumber, new Transaction(transactionNumber, true, timer++));
-        readOnlyLastCommitedValue.put(transactionNumber, dm.lastCommitedValuesForReadOnly());
-        LOGGER.fine("in beginro");
+    public void beginRO( int transactionNumber )
+    {
+        activeTransactions.put( transactionNumber, new Transaction( transactionNumber, true, timer++ ) );
+        readOnlyLastCommitedValue.put( transactionNumber, dm.lastCommitedValuesForReadOnly() );
+        LOGGER.fine( "in beginro" );
     }
 
-    public void end(int transactionNumber) {
-        LOGGER.fine("in end");
-        Transaction t = activeTransactions.get(transactionNumber);
+    public void end( int transactionNumber )
+    {
+        LOGGER.fine( "in end" );
+        Transaction t = activeTransactions.get( transactionNumber );
+
         /** Performing validations */
-        if(abortTransaction.contains(t)){
-            LOGGER.info("Aborting the transaction since a corresponding site previously failed");
-            abort(t.getTransactionNumber());
-            abortTransaction.remove(t);
+        if( abortTransaction.contains( t ) )
+        {
+            LOGGER.info( "Aborting the transaction since a corresponding site previously failed" );
+            abort( t.getTransactionNumber() );
+            abortTransaction.remove( t );
             return;
         }
-        Map<Operation, ArrayList<Site>> lockedVariables = t.getVariablesLocked();
-        for (Map.Entry<Operation, ArrayList<Site>> entry : lockedVariables.entrySet()) {
-           // System.out.println(entry);
-            if (!checkIsSiteUp(entry.getValue())) {
-                LOGGER.info("Aborting the transaction since no sites are available");
-                abort(transactionNumber);
+
+        Map<Operation, ArrayList<Site> > lockedVariables = t.getVariablesLocked();
+
+        for( Map.Entry<Operation, ArrayList<Site> > entry : lockedVariables.entrySet() )
+        {
+            /* System.out.println(entry); */
+            if( !checkIsSiteUp( entry.getValue() ) )
+            {
+                LOGGER.info( "Aborting the transaction since no sites are available" );
+                abort( transactionNumber );
                 return;
             }
         }
+
         /**Commit if everything is okay */
-        commit(transactionNumber);
+        commit( transactionNumber );
 
-        // remove from wfg
-        // execute from waitQ
-
+        /* remove from wfg */
+        /* execute from waitQ */
     }
 
-    private boolean checkIsSiteUp(ArrayList<Site> sites) {
-        for(Site s: sites){
-            if(!s.isSiteUp()){
+    private boolean checkIsSiteUp( ArrayList<Site> sites )
+    {
+        for( Site s: sites )
+        {
+            if( !s.isSiteUp() )
+            {
                 return false;
             }
         }
+
         return true;
     }
 
-    private void parseWaitQueue(Set<Integer> updated_vars){
+    private void parseWaitQueue( Set<Integer> updated_vars )
+    {
         parsing = true;
         ArrayList<Operation> waitTemp = new ArrayList<>();
-        waitTemp = (ArrayList) waitQueue.clone();
-        for(Operation op : waitTemp) {
-            if (updated_vars.size() > 0) {
-                if (updated_vars.contains(op.getVariableNumber())) {
-                    addAndExecuteOperation(op);
-                    if (!parsing) {
-                        updated_vars.remove(op.getVariableNumber());
+        waitTemp = ( ArrayList ) waitQueue.clone();
+
+        for( Operation op : waitTemp )
+        {
+            if( updated_vars.size() > 0 )
+            {
+                if( updated_vars.contains( op.getVariableNumber() ) )
+                {
+                    addAndExecuteOperation( op );
+
+                    if( !parsing )
+                    {
+                        updated_vars.remove( op.getVariableNumber() );
                         parsing = true;
                     }
-                    else{
-                        waitQueue.remove(op);
+                    else
+                    {
+                        waitQueue.remove( op );
                     }
                 }
             }
         }
     }
 
-    private void commit(int transactionNumber) {
-        LOGGER.fine("in commit");
-        Transaction t = activeTransactions.get(transactionNumber);
-        LOGGER.info("Comminting trasaction " + t);
-        Map<Operation, ArrayList<Site>> lockedVariables = t.getVariablesLocked();
+    private void commit( int transactionNumber )
+    {
+        LOGGER.fine( "in commit" );
+        Transaction t = activeTransactions.get( transactionNumber );
+        LOGGER.info( "Comminting trasaction " + t );
+        Map<Operation, ArrayList<Site> > lockedVariables = t.getVariablesLocked();
         Set<Integer> updated_vars = new HashSet<>();
-        //System.out.println(lockedVariables.keySet());
-        for (Operation op : lockedVariables.keySet()) {
-            updated_vars.add(op.getVariableNumber());
-            if (op.getOperation() == OperationType.WRITE) {
-                dm.updateVariableToParticularSite(op.getVariableNumber(), op.getValue(), lockedVariables.get(op));
+
+        /*System.out.println(lockedVariables.keySet()); */
+        for( Operation op : lockedVariables.keySet() )
+        {
+            updated_vars.add( op.getVariableNumber() );
+
+            if( op.getOperation() == OperationType.WRITE )
+            {
+                dm.updateVariableToParticularSite( op.getVariableNumber(), op.getValue(), lockedVariables.get( op ) );
             }
-            dm.removeLocks(op.getVariableNumber(), op.getTransaction());
+
+            dm.removeLocks( op.getVariableNumber(), op.getTransaction() );
         }
+
         dm.dump();
 
-        // set wasDown to false
-        // remove locks
-        activeTransactions.remove(t);
-        parseWaitQueue(updated_vars);
+        /* set wasDown to false */
+        /* remove locks */
+        activeTransactions.remove( t );
+        parseWaitQueue( updated_vars );
     }
 
-    private void abort(int transactionNumber) {
-        LOGGER.fine("in abort");
-        Transaction t = activeTransactions.get(transactionNumber);
-        Map<Operation, ArrayList<Site>> lockedVariables = t.getVariablesLocked();
+    private void abort( int transactionNumber )
+    {
+        LOGGER.fine( "in abort" );
+        Transaction t = activeTransactions.get( transactionNumber );
+        Map<Operation, ArrayList<Site> > lockedVariables = t.getVariablesLocked();
         Set<Integer> updated_vars = new HashSet<>();
-        LOGGER.info("Aborting transaction " + t);
-        for (Operation op : lockedVariables.keySet()) {
-            updated_vars.add(op.getVariableNumber());
-            if (op.getOperation() == OperationType.WRITE) {
-                ArrayList<Site> sites = dm.getUpSites(op.getVariableNumber());
-                if (sites.size() > 0) {
-                    tempVariables.put(op.getVariableNumber(), sites.get(0).getVariable(op.getVariableNumber()));
-                } else {
-                    tempVariables.put(op.getVariableNumber(), null);
+        LOGGER.info( "Aborting transaction " + t );
+
+        for( Operation op : lockedVariables.keySet() )
+        {
+            updated_vars.add( op.getVariableNumber() );
+
+            if( op.getOperation() == OperationType.WRITE )
+            {
+                ArrayList<Site> sites = dm.getUpSites( op.getVariableNumber() );
+
+                if( sites.size() > 0 )
+                {
+                    tempVariables.put( op.getVariableNumber(), sites.get( 0 ).getVariable( op.getVariableNumber() ) );
+                }
+                else
+                {
+                    tempVariables.put( op.getVariableNumber(), null );
                 }
             }
-            dm.removeLocks(op.getVariableNumber(), op.getTransaction());
+
+            dm.removeLocks( op.getVariableNumber(), op.getTransaction() );
         }
+
         dm.dump();
-         for(int tempV : tempVariables.keySet()){
-        // System.out.println(tempV+" "+tempVariables.get(tempV));
-         }
+
+        for( int tempV : tempVariables.keySet() )
+        {
+            /* System.out.println(tempV+" "+tempVariables.get(tempV)); */
+        }
+
         ArrayList<Operation> waitTemp = new ArrayList<>();
-        waitTemp = (ArrayList) waitQueue.clone();
-        for(Operation op : waitTemp) {
-            if(op.getTransaction().getTransactionNumber() == transactionNumber){
-                waitQueue.remove(op);
+        waitTemp = ( ArrayList ) waitQueue.clone();
+
+        for( Operation op : waitTemp )
+        {
+            if( op.getTransaction().getTransactionNumber() == transactionNumber )
+            {
+                waitQueue.remove( op );
             }
         }
-        //System.out.println("waitq"+waitQueue);
-        parseWaitQueue(updated_vars);
-        activeTransactions.remove(t);
+
+        /*System.out.println("waitq"+waitQueue); */
+        parseWaitQueue( updated_vars );
+        activeTransactions.remove( t );
     }
 
-    public Transaction getActiveTransactions(int transNumber) {
-        return activeTransactions.get(transNumber);
+    public Transaction getActiveTransactions( int transNumber )
+    {
+        return activeTransactions.get( transNumber );
     }
 
-    public void setActiveTransactions(Map<Integer, Transaction> activeTransactions) {
+    public void setActiveTransactions( Map<Integer, Transaction> activeTransactions )
+    {
         this.activeTransactions = activeTransactions;
     }
 
-    public void addAndExecuteOperation(Operation oper) {
-        if (oper.getOperation() == OperationType.READ) {
-            read(oper);
-        } else if (oper.getOperation() == OperationType.READONLY) {
-            readOnly(oper);
-        } else {
-            write(oper);
+    public void addAndExecuteOperation( Operation oper )
+    {
+        if( oper.getOperation() == OperationType.READ )
+        {
+            read( oper );
+        }
+        else if( oper.getOperation() == OperationType.READONLY )
+        {
+            readOnly( oper );
+        }
+        else
+        {
+            write( oper );
         }
     }
 
-    private int isLockedCount(ArrayList<Site> upSites, Operation op) {
+    private int isLockedCount( ArrayList<Site> upSites,
+                               Operation op )
+    {
         int countLocked = 0;
-        for (Site site : upSites) {
-            if (site.getVariable(op.getVariableNumber()).isLock()) {
+
+        for( Site site : upSites )
+        {
+            if( site.getVariable( op.getVariableNumber() ).isLock() )
+            {
                 countLocked++;
             }
         }
-        if (countLocked == upSites.size())
-            return 1; // All locked
-        else if (countLocked == 0)
-            return 0; // All unlocked
+
+        if( countLocked == upSites.size() )
+        {
+            return 1; /* All locked */
+        }
+        else if( countLocked == 0 )
+        {
+            return 0; /* All unlocked */
+        }
         else
-            return -1; // some locked
+        {
+            return -1; /* some locked */
+        }
     }
 
-    private void setLock(ArrayList<Site> upSites, Operation op) {
-        LOGGER.fine("Adding Lock...");
-        for (Site site : upSites) {
-            if (op.getOperation() == OperationType.READ)
-                site.getVariable(op.getVariableNumber()).setLock(op.getTransaction(), LockType.READLOCK);
+    private void setLock( ArrayList<Site> upSites,
+                          Operation op )
+    {
+        LOGGER.fine( "Adding Lock..." );
+
+        for( Site site : upSites )
+        {
+            if( op.getOperation() == OperationType.READ )
+            {
+                site.getVariable( op.getVariableNumber() ).setLock( op.getTransaction(), LockType.READLOCK );
+            }
             else
-                site.getVariable(op.getVariableNumber()).setLock(op.getTransaction(), LockType.WRITELOCK);
+            {
+                site.getVariable( op.getVariableNumber() ).setLock( op.getTransaction(), LockType.WRITELOCK );
+            }
         }
     }
 
-    private void promoteLock(ArrayList<Site> upSites, Operation op) {
-        LOGGER.fine("Promoting Lock...");
-        for (Site site : upSites) {
-            site.getVariable(op.getVariableNumber()).promoteLock();
+    private void promoteLock( ArrayList<Site> upSites,
+                              Operation op )
+    {
+        LOGGER.fine( "Promoting Lock..." );
+
+        for( Site site : upSites )
+        {
+            site.getVariable( op.getVariableNumber() ).promoteLock();
         }
     }
 
-    private void detectDeadlock(){
+    private void detectDeadlock()
+    {
         List<Integer> deadlockedVertices = waitForGraph.hasCycle();
-       // System.out.println(deadlockedVertices);
+        /* System.out.println(deadlockedVertices); */
         int minTimestamp = Integer.MIN_VALUE;
         int youngestTransaction = 0;
-        if(!deadlockedVertices.isEmpty()){
-            for (Integer transNumber : deadlockedVertices) {
 
-                Transaction current = activeTransactions.get(transNumber);
-                if (current.getTimeStamp() > (minTimestamp)){
+        if( !deadlockedVertices.isEmpty() )
+        {
+            for( Integer transNumber : deadlockedVertices )
+            {
+                Transaction current = activeTransactions.get( transNumber );
+
+                if( current.getTimeStamp() > ( minTimestamp ) )
+                {
                     minTimestamp = current.getTimeStamp();
                     youngestTransaction = current.getTransactionNumber();
                 }
             }
-            abort(youngestTransaction);
-        }
 
+            abort( youngestTransaction );
+        }
     }
 
-    public void read(Operation op) {
-        LOGGER.fine("in read");
+    public void read( Operation op )
+    {
+        LOGGER.fine( "in read" );
         Site validSite = null;
-        ArrayList<Site> upSites = dm.getUpSites(op.getVariableNumber());
-        if (upSites.isEmpty()) {
-            LOGGER.fine("All corresponding sites down, adding [" + op + "] to wait for sites waitQueue");
-            waitSiteDownQueue.add(op);
+        ArrayList<Site> upSites = dm.getUpSites( op.getVariableNumber() );
+
+        if( upSites.isEmpty() )
+        {
+            LOGGER.fine( "All corresponding sites down, adding [" + op + "] to wait for sites waitQueue" );
+            waitSiteDownQueue.add( op );
             return;
         }
-        else if(upSites.size() == 1 && op.getVariableNumber()%2 != 0){
-            validSite = upSites.get(0);
+        else if( ( upSites.size() == 1 ) && ( op.getVariableNumber() % 2 != 0 ) )
+        {
+            validSite = upSites.get( 0 );
         }
-        else {
-            for (Site s : upSites) {
-                if (!s.checkVariableIsCorrupt(op.getVariableNumber())) {
+        else
+        {
+            for( Site s : upSites )
+            {
+                if( !s.checkVariableIsCorrupt( op.getVariableNumber() ) )
+                {
                     validSite = s;
                     break;
                 }
             }
         }
-        if(validSite !=null) {
-            Variable variable = validSite.getVariable(op.getVariableNumber());
-            if (isLockedCount(upSites, op) == 0) { // all unlocked
-                setLock(upSites, op);
-                op.getTransaction().addVariableLocked(op, upSites);
-                LOGGER.info("x" + op.getVariableNumber() + " : " + variable.getValue()+" from site "+validSite.getSiteNo());
-            } else if (variable.getLockType() == LockType.WRITELOCK
-                    && op.getTransaction() != variable.getLockedByTransaction().get(0)) { // if not locked same
-                                                                                          // transaction, write lock
-                                                                                          // only has 1 transaction
-                if(!parsing) {
-                    LOGGER.fine("WRITE LOCK BY" + variable.getLockedByTransaction().get(0) + ", Adding[" + op
-                            + "] to waitQueue");
-                    waitQueue.add(op);
-                    // Adding to waitforgraph & deadlock detection
-                    waitForGraph.addEdge(op.getTransaction().getTransactionNumber(),
-                            variable.getLockedByTransaction().get(0).getTransactionNumber());
+
+        if( validSite != null )
+        {
+            Variable variable = validSite.getVariable( op.getVariableNumber() );
+
+            if( isLockedCount( upSites, op ) == 0 ) /* all unlocked */
+            {
+                setLock( upSites, op );
+                op.getTransaction().addVariableLocked( op, upSites );
+                LOGGER.info( "x" + op.getVariableNumber() + " : " + variable.getValue() + " from site " + validSite.getSiteNo() );
+            }
+            else if( ( variable.getLockType() == LockType.WRITELOCK ) &&
+                     ( op.getTransaction() != variable.getLockedByTransaction().get( 0 ) ) ) /* if not locked same */
+                                                                                             /* transaction, write lock */
+                                                                                             /* only has 1 transaction */
+            {
+                if( !parsing )
+                {
+                    LOGGER.fine( "WRITE LOCK BY" + variable.getLockedByTransaction().get( 0 ) + ", Adding[" + op
+                                 + "] to waitQueue" );
+                    waitQueue.add( op );
+                    /* Adding to waitforgraph & deadlock detection */
+                    waitForGraph.addEdge( op.getTransaction().getTransactionNumber(),
+                                          variable.getLockedByTransaction().get( 0 ).getTransactionNumber() );
                     detectDeadlock();
                 }
-                else{
-                    parsing =false;
+                else
+                {
+                    parsing = false;
                 }
-            } else if (variable.getLockType() == LockType.WRITELOCK
-                    && op.getTransaction() == variable.getLockedByTransaction().get(0)) {
+            }
+            else if( ( variable.getLockType() == LockType.WRITELOCK ) &&
+                     ( op.getTransaction() == variable.getLockedByTransaction().get( 0 ) ) )
+            {
                 LOGGER.info(
-                        "x" + op.getVariableNumber() + " : " + tempVariables.get(op.getVariableNumber()).getValue()+" from site "+validSite.getSiteNo());
-            } else if (variable.getLockType() == LockType.READLOCK) {
-                if (variable.getLockedByTransaction().contains(op.getTransaction()))
-                    LOGGER.info("x" + op.getVariableNumber() + " : "
-                            + tempVariables.get(op.getVariableNumber()).getValue()+" from site "+validSite.getSiteNo());
-                else { // all readlocks
+                    "x" + op.getVariableNumber() + " : " + tempVariables.get( op.getVariableNumber() ).getValue() + " from site " + validSite.getSiteNo() );
+            }
+            else if( variable.getLockType() == LockType.READLOCK )
+            {
+                if( variable.getLockedByTransaction().contains( op.getTransaction() ) )
+                {
+                    LOGGER.info( "x" + op.getVariableNumber() + " : "
+                                 + tempVariables.get( op.getVariableNumber() ).getValue() + " from site " + validSite.getSiteNo() );
+                }
+                else /* all readlocks */
+                {
                     boolean inWaitQueue = false;
-                    for (Operation o : waitQueue) {
-                        if (o.getVariableNumber() == op.getVariableNumber()) { // dont skip writes
+
+                    for( Operation o : waitQueue )
+                    {
+                        if( o.getVariableNumber() == op.getVariableNumber() ) /* dont skip writes */
+                        {
                             inWaitQueue = true;
                             break;
                         }
                     }
-                    if (inWaitQueue) {
-                        if(!parsing) {
-                            LOGGER.fine("WRITE transaction waiting for lock, Adding[" + op + "] to waitQueue");
-                            waitQueue.add(op);
-                            for (Transaction t : variable.getLockedByTransaction()) {
-                                waitForGraph.addEdge(op.getTransaction().getTransactionNumber(), t.getTransactionNumber());
+
+                    if( inWaitQueue )
+                    {
+                        if( !parsing )
+                        {
+                            LOGGER.fine( "WRITE transaction waiting for lock, Adding[" + op + "] to waitQueue" );
+                            waitQueue.add( op );
+
+                            for( Transaction t : variable.getLockedByTransaction() )
+                            {
+                                waitForGraph.addEdge( op.getTransaction().getTransactionNumber(), t.getTransactionNumber() );
                             }
-                            for(Operation operation: waitQueue){
-                                if(op.getVariableNumber() == operation.getVariableNumber() && operation.getOperation() == OperationType.WRITE)
-                                    waitForGraph.addEdge(op.getTransaction().getTransactionNumber(), operation.getTransaction().getTransactionNumber());
+
+                            for( Operation operation: waitQueue )
+                            {
+                                if( ( op.getVariableNumber() == operation.getVariableNumber() ) && ( operation.getOperation() == OperationType.WRITE ) )
+                                {
+                                    waitForGraph.addEdge( op.getTransaction().getTransactionNumber(), operation.getTransaction().getTransactionNumber() );
+                                }
                             }
 
                             detectDeadlock();
                         }
-                        else{
-                            parsing=false;
+                        else
+                        {
+                            parsing = false;
                         }
-                    } else {
-                        setLock(upSites, op);
-                        op.getTransaction().addVariableLocked(op, upSites);
-                        LOGGER.info("x" + op.getVariableNumber() + " : " + variable.getValue()+" from site "+validSite.getSiteNo());
                     }
-
+                    else
+                    {
+                        setLock( upSites, op );
+                        op.getTransaction().addVariableLocked( op, upSites );
+                        LOGGER.info( "x" + op.getVariableNumber() + " : " + variable.getValue() + " from site " + validSite.getSiteNo() );
+                    }
                 }
             }
         }
-        else{
-            waitSiteDownQueue.add(op);
+        else
+        {
+            waitSiteDownQueue.add( op );
         }
     }
 
-    public void write(Operation op) {
-        LOGGER.fine("in write");
+    public void write( Operation op )
+    {
+        LOGGER.fine( "in write" );
 
-        ArrayList<Site> upSites = dm.getUpSites(op.getVariableNumber());
-        if (upSites.isEmpty()) {
-            waitSiteDownQueue.add(op);
-            LOGGER.fine("All corresponding sites down, adding [" + op + "] to wait for sites waitQueue");
+        ArrayList<Site> upSites = dm.getUpSites( op.getVariableNumber() );
+
+        if( upSites.isEmpty() )
+        {
+            waitSiteDownQueue.add( op );
+            LOGGER.fine( "All corresponding sites down, adding [" + op + "] to wait for sites waitQueue" );
             return;
-        } else {
-            Variable tvariable = tempVariables.get(op.getVariableNumber());
-            Variable variable = upSites.get(0).getVariable(op.getVariableNumber());
+        }
+        else
+        {
+            Variable tvariable = tempVariables.get( op.getVariableNumber() );
+            Variable variable = upSites.get( 0 ).getVariable( op.getVariableNumber() );
 
-            if (isLockedCount(upSites, op) == 0) { // all unlocked
-                setLock(upSites, op);
-                op.getTransaction().addVariableLocked(op, upSites);
-                tvariable.setValue(op.getValue());
-                LOGGER.info(op + " from value " + variable.getValue());
-            } else {
-                if (variable.getLockType() == LockType.WRITELOCK
-                        && op.getTransaction() == variable.getLockedByTransaction().get(0)) {
-                    LOGGER.info(op + " from value " + tvariable.getValue());
-                    tvariable.setValue(op.getValue());
-                    op.getTransaction().addVariableLocked(op, upSites);
-                } else if (variable.getLockType() == LockType.WRITELOCK
-                        && op.getTransaction() != variable.getLockedByTransaction().get(0)) {
-                    if(!parsing) {
-                        waitQueue.add(op);
-                        LOGGER.fine("WRITE LOCK BY" + variable.getLockedByTransaction().get(0) + ", Adding[" + op
-                                + "] to waitQueue");
-                        waitForGraph.addEdge(op.getTransaction().getTransactionNumber(),
-                                variable.getLockedByTransaction().get(0).getTransactionNumber());
+            if( isLockedCount( upSites, op ) == 0 ) /* all unlocked */
+            {
+                setLock( upSites, op );
+                op.getTransaction().addVariableLocked( op, upSites );
+                tvariable.setValue( op.getValue() );
+                LOGGER.info( op + " from value " + variable.getValue() );
+            }
+            else
+            {
+                if( ( variable.getLockType() == LockType.WRITELOCK ) &&
+                    ( op.getTransaction() == variable.getLockedByTransaction().get( 0 ) ) )
+                {
+                    LOGGER.info( op + " from value " + tvariable.getValue() );
+                    tvariable.setValue( op.getValue() );
+                    op.getTransaction().addVariableLocked( op, upSites );
+                }
+                else if( ( variable.getLockType() == LockType.WRITELOCK ) &&
+                         ( op.getTransaction() != variable.getLockedByTransaction().get( 0 ) ) )
+                {
+                    if( !parsing )
+                    {
+                        waitQueue.add( op );
+                        LOGGER.fine( "WRITE LOCK BY" + variable.getLockedByTransaction().get( 0 ) + ", Adding[" + op
+                                     + "] to waitQueue" );
+                        waitForGraph.addEdge( op.getTransaction().getTransactionNumber(),
+                                              variable.getLockedByTransaction().get( 0 ).getTransactionNumber() );
                         detectDeadlock();
                     }
-                    else{
-                        parsing=false;
+                    else
+                    {
+                        parsing = false;
                     }
-                } else if (variable.getLockType() == LockType.READLOCK) {
+                }
+                else if( variable.getLockType() == LockType.READLOCK )
+                {
                     boolean inWaitQueue = false;
-                    for (Operation o : waitQueue) {
-                        if (o.getVariableNumber() == op.getVariableNumber()) { // dont skip writes
+
+                    for( Operation o : waitQueue )
+                    {
+                        if( o.getVariableNumber() == op.getVariableNumber() ) /* dont skip writes */
+                        {
                             inWaitQueue = true;
                             break;
                         }
                     }
-                    if (variable.getLockedByTransaction().size() == 1 && variable.getLockedByTransaction().get(0)
-                            .getTransactionNumber() == op.getTransaction().getTransactionNumber() && !inWaitQueue) {
-                        promoteLock(upSites, op);
-                        op.getTransaction().addVariableLocked(op, upSites);
-                        LOGGER.info(op + " from value " + tvariable.getValue());
-                        tvariable.setValue(op.getValue());
-                    } else {
-                        if(!parsing) {
-                            LOGGER.fine("READ LOCK by multiple transactions/other transaction, Adding [" + op
-                                    + "] to waitQueue");
-                            waitQueue.add(op);
-                            for (Transaction t : variable.getLockedByTransaction()) {
-                                waitForGraph.addEdge(op.getTransaction().getTransactionNumber(), t.getTransactionNumber());
+
+                    if( ( variable.getLockedByTransaction().size() == 1 ) && ( variable.getLockedByTransaction().get( 0 )
+                                                                                  .getTransactionNumber() == op.getTransaction().getTransactionNumber() ) && !inWaitQueue )
+                    {
+                        promoteLock( upSites, op );
+                        op.getTransaction().addVariableLocked( op, upSites );
+                        LOGGER.info( op + " from value " + tvariable.getValue() );
+                        tvariable.setValue( op.getValue() );
+                    }
+                    else
+                    {
+                        if( !parsing )
+                        {
+                            LOGGER.fine( "READ LOCK by multiple transactions/other transaction, Adding [" + op
+                                         + "] to waitQueue" );
+                            waitQueue.add( op );
+
+                            for( Transaction t : variable.getLockedByTransaction() )
+                            {
+                                waitForGraph.addEdge( op.getTransaction().getTransactionNumber(), t.getTransactionNumber() );
                             }
-                            for(Operation operation: waitQueue){
-                                if(op.getVariableNumber() == operation.getVariableNumber())
-                                    waitForGraph.addEdge(op.getTransaction().getTransactionNumber(), operation.getTransaction().getTransactionNumber());
+
+                            for( Operation operation: waitQueue )
+                            {
+                                if( op.getVariableNumber() == operation.getVariableNumber() )
+                                {
+                                    waitForGraph.addEdge( op.getTransaction().getTransactionNumber(), operation.getTransaction().getTransactionNumber() );
+                                }
                             }
+
                             detectDeadlock();
                         }
-                        else{
-                            parsing=false;
+                        else
+                        {
+                            parsing = false;
                         }
                     }
                 }
-
             }
-
         }
     }
 
-    public void readOnly(Operation op) {
-        LOGGER.fine("in readOnly");
-        int readValue = readOnlyLastCommitedValue.get(op.getTransaction().getTransactionNumber())
-                .get(op.getVariableNumber() - 1);
-        if (readValue != Integer.MIN_VALUE) {
-            LOGGER.info("x" + op.getVariableNumber() + " : " + readValue);
-        } else {
-            LOGGER.fine("All sites down, Adding [" + op + "] to waitQueue");
-            waitSiteDownQueue.add(op);
+    public void readOnly( Operation op )
+    {
+        LOGGER.fine( "in readOnly" );
+        int readValue = readOnlyLastCommitedValue.get( op.getTransaction().getTransactionNumber() )
+                           .get( op.getVariableNumber() - 1 );
+
+        if( readValue != Integer.MIN_VALUE )
+        {
+            LOGGER.info( "x" + op.getVariableNumber() + " : " + readValue );
+        }
+        else
+        {
+            LOGGER.fine( "All sites down, Adding [" + op + "] to waitQueue" );
+            waitSiteDownQueue.add( op );
         }
     }
-
 }

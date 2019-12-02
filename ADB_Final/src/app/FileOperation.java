@@ -4,9 +4,9 @@
  * @brief Reads the input lines and generates a corresponding operation
  * @version 0.1
  * @date 2019-12-02
- * 
+ *
  * @copyright Copyright (c) 2019
- * 
+ *
  */
 package app;
 
@@ -22,7 +22,8 @@ public class FileOperation {
      *        action
      * @param filepath path to input file
      */
-    void readFromFile(String filepath) {
+    void readFromFile( String filepath )
+    {
         this.filepath = filepath;
         /** Initialize the Transaction and Data Manager */
         TransactionManager tm = new TransactionManager();
@@ -32,64 +33,77 @@ public class FileOperation {
         int variableNumber = -1;
         int siteNumber = -1;
 
-        try (BufferedReader br = new BufferedReader(new FileReader(filepath))) {
+        try ( BufferedReader br = new BufferedReader( new FileReader( filepath ) ) ) {
             String line;
-            while ((line = br.readLine()) != null) {
-                line = line.replace(" ", "");
+
+            while( ( line = br.readLine() ) != null )
+            {
+                line = line.replace( " ", "" );
                 /** Get the action */
-                String transaction = line.substring(0, line.indexOf("("));
-                switch (transaction) {
-                case "begin":
-                    transNumber = Integer.parseInt(line.substring(line.indexOf("T") + 1, line.indexOf(")")));
-                    tm.begin(transNumber);
-                    break;
-                case "beginRO":
-                    transNumber = Integer.parseInt(line.substring(line.indexOf("T") + 1, line.indexOf(")")));
-                    tm.beginRO(transNumber);
-                    break;
-                case "dump":
-                    dm.dump();
-                    break;
-                case "end":
-                    transNumber = Integer.parseInt(line.substring(line.indexOf("T") + 1, line.indexOf(")")));
-                    tm.end(transNumber);
-                    break;
-                case "fail":
-                    siteNumber = Integer.parseInt(line.substring(line.indexOf("(") + 1, line.indexOf(")")));
-                    tm.fail(siteNumber);
-                    break;
-                case "recover":
-                    siteNumber = Integer.parseInt(line.substring(line.indexOf("(") + 1, line.indexOf(")")));
-                    tm.recover(siteNumber);
-                    break;
-                case "R":
-                    transNumber = Integer.parseInt(line.substring(line.indexOf("T") + 1, line.indexOf(",")));
-                    variableNumber = Integer.parseInt(line.substring(line.indexOf("x") + 1, line.indexOf(")")));
-                    op = new Operation(tm.getActiveTransactions(transNumber),
-                            tm.getActiveTransactions(transNumber).isReadOnly() ? OperationType.READONLY
+                String transaction = line.substring( 0, line.indexOf( "(" ) );
+
+                switch( transaction )
+                {
+                    case "begin":
+                        transNumber = Integer.parseInt( line.substring( line.indexOf( "T" ) + 1, line.indexOf( ")" ) ) );
+                        tm.begin( transNumber );
+                        break;
+
+                    case "beginRO":
+                        transNumber = Integer.parseInt( line.substring( line.indexOf( "T" ) + 1, line.indexOf( ")" ) ) );
+                        tm.beginRO( transNumber );
+                        break;
+
+                    case "dump":
+                        dm.dump();
+                        break;
+
+                    case "end":
+                        transNumber = Integer.parseInt( line.substring( line.indexOf( "T" ) + 1, line.indexOf( ")" ) ) );
+                        tm.end( transNumber );
+                        break;
+
+                    case "fail":
+                        siteNumber = Integer.parseInt( line.substring( line.indexOf( "(" ) + 1, line.indexOf( ")" ) ) );
+                        tm.fail( siteNumber );
+                        break;
+
+                    case "recover":
+                        siteNumber = Integer.parseInt( line.substring( line.indexOf( "(" ) + 1, line.indexOf( ")" ) ) );
+                        tm.recover( siteNumber );
+                        break;
+
+                    case "R":
+                        transNumber = Integer.parseInt( line.substring( line.indexOf( "T" ) + 1, line.indexOf( "," ) ) );
+                        variableNumber = Integer.parseInt( line.substring( line.indexOf( "x" ) + 1, line.indexOf( ")" ) ) );
+                        op = new Operation( tm.getActiveTransactions( transNumber ),
+                                            tm.getActiveTransactions( transNumber ).isReadOnly() ? OperationType.READONLY
                                     : OperationType.READ,
-                            variableNumber, -1);
-                    tm.addAndExecuteOperation(op);
-                    break;
-                case "W":
-                    transNumber = Integer.parseInt(line.substring(line.indexOf("T") + 1, line.indexOf(",")));
-                    variableNumber = Integer.parseInt(line.substring(line.indexOf("x") + 1, line.lastIndexOf(",")));
-                    int value = Integer.parseInt(line.substring(line.lastIndexOf(",") + 1, line.indexOf(")")));
-                    op = new Operation(tm.getActiveTransactions(transNumber), OperationType.WRITE, variableNumber,
-                            value);
-                    tm.addAndExecuteOperation(op);
-                    break;
-                default:
-                    System.out.println("Invalid transaction");
-                    break;
+                                            variableNumber, -1 );
+                        tm.addAndExecuteOperation( op );
+                        break;
+
+                    case "W":
+                        transNumber = Integer.parseInt( line.substring( line.indexOf( "T" ) + 1, line.indexOf( "," ) ) );
+                        variableNumber = Integer.parseInt( line.substring( line.indexOf( "x" ) + 1, line.lastIndexOf( "," ) ) );
+                        int value = Integer.parseInt( line.substring( line.lastIndexOf( "," ) + 1, line.indexOf( ")" ) ) );
+                        op = new Operation( tm.getActiveTransactions( transNumber ), OperationType.WRITE, variableNumber,
+                                            value );
+                        tm.addAndExecuteOperation( op );
+                        break;
+
+                    default:
+                        System.out.println( "Invalid transaction" );
+                        break;
                 }
             }
-        } catch (IOException e) {
+        }
+        catch( IOException e ) {
             e.printStackTrace();
         }
     }
 
-    void writeToFile() {
-
+    void writeToFile()
+    {
     }
 }

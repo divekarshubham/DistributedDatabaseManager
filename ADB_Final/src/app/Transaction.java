@@ -4,9 +4,9 @@
  * @brief Represents and stores the information related to a Transaction
  * @version 0.1
  * @date 2019-12-02
- * 
+ *
  * @copyright Copyright (c) 2019
- * 
+ *
  */
 package app;
 
@@ -20,37 +20,46 @@ public class Transaction {
     private int transactionNumber;
     private int timestamp;
     private boolean isReadOnly;
-    private Map<Operation, ArrayList<Site>> variablesLocked = new HashMap<>(); //map<variable, site>
+    private Map<Operation, ArrayList<Site> > variablesLocked = new HashMap<>(); /*map<variable, site> */
 
-    public Transaction(int transactionNumber, boolean isReadOnly, int arrivalTime) {
+    public Transaction( int transactionNumber,
+                        boolean isReadOnly,
+                        int arrivalTime )
+    {
         this.transactionNumber = transactionNumber;
         this.timestamp = arrivalTime;
         this.isReadOnly = isReadOnly;
     }
 
     @Override
-    public String toString() {
-
+    public String toString()
+    {
         return "Transaction: " + this.transactionNumber + " began at: " + this.timestamp;
     }
 
-    public int getTransactionNumber() {
+    public int getTransactionNumber()
+    {
         return this.transactionNumber;
     }
 
-    public int getTimeStamp() {
+    public int getTimeStamp()
+    {
         return this.timestamp;
     }
 
-    public boolean isReadOnly(){
+    public boolean isReadOnly()
+    {
         return this.isReadOnly;
     }
 
-    public Map<Operation, ArrayList<Site>> getVariablesLocked() {
+    public Map<Operation, ArrayList<Site> > getVariablesLocked()
+    {
         return variablesLocked;
     }
-    public void addVariableLocked(Operation op, ArrayList<Site> s) {
-        this.variablesLocked.put(op,s);
-    }
 
+    public void addVariableLocked( Operation op,
+                                   ArrayList<Site> s )
+    {
+        this.variablesLocked.put( op, s );
+    }
 }
