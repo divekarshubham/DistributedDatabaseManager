@@ -1,3 +1,13 @@
+/**
+ * @file DataManager.java
+ * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
+ * @brief Handles all operations on data, by directing each site 
+ * @version 0.1
+ * @date 2019-12-02
+ * 
+ * @copyright Copyright (c) 2019
+ * 
+ */
 package app;
 
 import java.util.*;
@@ -32,7 +42,7 @@ public class DataManager {
             } else {
                 Variable var = new Variable(i, 10 * i);
                 int si = (i % 10) + 1;
-                LOGGER.info("var is:" + i + " Site is:" + si);
+                LOGGER.fine("var is:" + i + " Site is:" + si);
                 Site s = this.sites.get(si);
                 s.addVariableToSite(i, var);
             }
@@ -143,12 +153,13 @@ public class DataManager {
     public Site getSite(int siteNo) {
         return sites.get(siteNo);
     }
-/**
- * @brief   to check if the variables are available we construct a list of all sites
- *          (corresponding to it) that are up
- * @param variableNumber     
- * @return  A list of available sites
- */
+
+    /**
+     * @brief to check if the variables are available we construct a list of all
+     *        sites (corresponding to it) that are up
+     * @param variableNumber
+     * @return A list of available sites
+     */
     public ArrayList<Site> getUpSites(int variableNumber) {
         ArrayList<Site> availSite = new ArrayList();
         if (variableNumber % 2 == 0) {
@@ -165,11 +176,12 @@ public class DataManager {
         }
         return availSite;
     }
-/**
- * @brief   When a transaction ends we have to remove all its aquired locks
- * @param variableNumber Variable for which lock was acquired
- * @param transaction Transaction that acquired the lock
- */
+
+    /**
+     * @brief When a transaction ends we have to remove all its aquired locks
+     * @param variableNumber Variable for which lock was acquired
+     * @param transaction    Transaction that acquired the lock
+     */
     public void removeLocks(int variableNumber, Transaction transaction) {
         if (variableNumber % 2 == 0) {
             for (Site site : sites.values()) {

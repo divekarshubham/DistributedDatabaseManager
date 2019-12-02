@@ -1,3 +1,13 @@
+/**
+ * @file main.c
+ * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
+ * @brief Data-Structure to store all the information of a variable.
+ * @version 0.1
+ * @date 2019-12-02
+ * 
+ * @copyright Copyright (c) 2019
+ * 
+ */
 package app;
 
 import java.util.ArrayList;

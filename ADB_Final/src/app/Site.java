@@ -1,3 +1,13 @@
+/**
+ * @file Site.java
+ * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
+ * @brief A warehouse of the data which may be up/down.
+ * @version 0.1
+ * @date 2019-12-02
+ * 
+ * @copyright Copyright (c) 2019
+ * 
+ */
 package app;
 
 import java.util.ArrayList;
@@ -19,7 +29,8 @@ public class Site {
         StringBuffer str = new StringBuffer();
         str.append("siteNo:" + this.siteNo + " isUp:" + this.isUp);
         for (Integer i : variablesForSite.keySet()) {
-            str.append(" x" + i + ": " + variablesForSite.get(i) + ",");
+            //str.append(" x" + i + ": " + variablesForSite.get(i) + ",");
+            str.append(" x" + i + ": " + variablesForSite.get(i).getValue() + ",");
         }
         // Remove comma at the end
         return str.toString();

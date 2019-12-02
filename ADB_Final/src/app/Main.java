@@ -1,3 +1,13 @@
+/**
+ * @file Main.java
+ * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
+ * @brief Entering class of the program that initiates the file reader and handlers for writing to the file
+ * @version 0.1
+ * @date 2019-12-02
+ * 
+ * @copyright Copyright (c) 2019
+ * 
+ */
 package app;
 
 import java.io.FileOutputStream;
@@ -14,9 +24,9 @@ public class Main {
    public static void main(String args[]){
         Logger rootLogger = LogManager.getLogManager().getLogger("");
         FileHandler fh;
-        rootLogger.setLevel(Level.FINE);
+        rootLogger.setLevel(Level.INFO);
         for (Handler h : rootLogger.getHandlers()) {
-            h.setLevel(Level.FINE);
+            h.setLevel(Level.INFO);
         }
         FileOperation fp = new FileOperation();
 

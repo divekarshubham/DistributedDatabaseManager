@@ -1,3 +1,13 @@
+/**
+ * @file Transaction.java
+ * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
+ * @brief Represents and stores the information related to a Transaction
+ * @version 0.1
+ * @date 2019-12-02
+ * 
+ * @copyright Copyright (c) 2019
+ * 
+ */
 package app;
 
 import java.util.ArrayList;

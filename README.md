@@ -1,6 +1,12 @@
 # DistributedDatabaseManager
 # TO FIX
 DataManager has two methods updateVariables to sites and particular site
+Uncrustify
+why are there comments in end/commit/abort for removing variables etc
+
+# Changed
+changed dump
+changed read from site to siteNO
 
 # Algorithms used for the Database Manager
 
