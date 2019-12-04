@@ -20,7 +20,8 @@ public class Transaction {
     private int transactionNumber;
     private int timestamp;
     private boolean isReadOnly;
-    private Map<Operation, ArrayList<Site> > variablesLocked = new HashMap<>(); /*map<variable, site> */
+    /** We need to keep track of the variables and all sites that the transaction has placed locks on */
+    private Map<Operation, ArrayList<Site> > variablesLocked = new HashMap<>(); 
 
     public Transaction( int transactionNumber,
                         boolean isReadOnly,

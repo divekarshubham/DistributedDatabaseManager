@@ -15,10 +15,12 @@ import java.util.List;
 
 public class Variable {
     private int value;
+    /** A variable can have multiple transactions holding read-locks on it */
     private List<Transaction> lockedByTransactions;
     private LockType lockType;
     private boolean isLock;
     private int index;
+    /** When the site fails all the variables are marked corrupt to reflect they are unreadable */
     private boolean isCorrupt;
 
     public Variable( int index,
@@ -77,11 +79,6 @@ public class Variable {
         return lockType;
     }
 
-    public void setLockType( LockType lockType )
-    {
-        this.lockType = lockType;
-    }
-
     public boolean isLock()
     {
         return isLock;
@@ -105,21 +102,12 @@ public class Variable {
         this.isLock = true;
     }
 
+    /**
+     * @brief used when a transaction wants to convert a readlock to writelock
+     */
     public void promoteLock()
     {
         this.lockType = LockType.WRITELOCK;
-    }
-
-    public void unlock()
-    {
-        if( this.isLock )
-        {
-            this.isLock = false;
-        }
-        else
-        {
-            throw new IllegalArgumentException( "variable has no lock" );
-        }
     }
 
     public void removeLockByTransaction( Transaction transaction )
@@ -133,6 +121,9 @@ public class Variable {
         }
     }
 
+    /**
+     * @brief used a site fails and all the locks need to be cleared
+     */
     public void removeAllLocks()
     {
         lockedByTransactions.clear();

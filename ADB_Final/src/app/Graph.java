@@ -194,6 +194,7 @@ class Graph {
 
 class Vertex {
     long id;
+    /** Edges are stored as adjacency list in each vertex */
     private List<Vertex> adjacentVertex = new ArrayList<>();
 
     Vertex( long id )
