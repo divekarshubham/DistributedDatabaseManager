@@ -17,7 +17,7 @@ import java.util.logging.*;
 
 public class Main {
     /**
-     *
+     * Main class, starts running from here, it sets the logger level and has logic to write to a file
      * @param args[1]: input file
      * @param args[2]: output file
      */
@@ -37,7 +37,7 @@ public class Main {
 
         try {
             PrintStream out = new PrintStream( new FileOutputStream( args[ 1 ] ) );
-            System.setOut( out );
+            //System.setOut( out );
             fh = new FileHandler( args[ 1 ], true );
             rootLogger.addHandler( fh );
             SimpleFormatter formatter = new SimpleFormatter();

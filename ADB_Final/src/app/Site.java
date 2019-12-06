@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Site {
+
+
     private HashMap<Integer, Variable> variablesForSite = new HashMap<>( 21 );
     private boolean isUp;
     private int siteNo;
@@ -22,6 +24,10 @@ public class Site {
     {
         this.siteNo = siteNo;
         this.isUp = true;
+    }
+
+    public void setVariablesForSite(int index, Variable v) {
+        this.variablesForSite.put(index, v);
     }
 
     @Override
@@ -34,7 +40,7 @@ public class Site {
         for( Integer i : variablesForSite.keySet() )
         {
             /*str.append(" x" + i + ": " + variablesForSite.get(i) + ","); */
-            str.append( " x" + i + ": " + variablesForSite.get( i ).getValue() + "," );
+            str.append( " x" + i + ": " + variablesForSite.get( i ).getValue() +"," );
         }
 
         /* Remove comma at the end */

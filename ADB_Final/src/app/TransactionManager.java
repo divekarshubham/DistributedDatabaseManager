@@ -10,31 +10,38 @@
  */
 package app;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.logging.Logger;
 
+/**
+ * This class manages all the transactions. It can perform transactions like read, write, end, commit and abort.
+ * It also has an instance of data manager to access data form the sites
+ */
 public class TransactionManager {
     private final static Logger LOGGER = Logger.getLogger( TransactionManager.class.getName() );
     private Map<Integer, Transaction> activeTransactions;
-    private Map<Integer, ArrayList<Integer> > readOnlyLastCommitedValue = new HashMap<>(); /* transactionNumber, */
-                                                                                           /* LastReadValue */
-    private Map<Integer, Variable> tempVariables;                                          /* make ints */
+    private Map<Integer, ArrayList<Integer> > readOnlyLastCommitedValue = new HashMap<>();
+    private Map<Integer, Variable> tempVariables;
     private DataManager dm;
     private ArrayList<Operation> waitQueue;
-    private ArrayList<Operation> waitSiteDownQueue;
+    private HashSet<Operation> waitSiteDownQueue;
     private Graph waitForGraph;
     private int timer = 0;
     private boolean parsing = false;
     ArrayList<Transaction> abortTransaction = new ArrayList<>();
 
+    /**
+     * This constructor instializes all the waitqueue, sitedownqueue, waitfor graph and active transactions.
+     * It also creates an instance of datamanager
+     * It creates a tempVariable cache to cache variables before they are written to site
+     */
     public TransactionManager()
     {
         dm = DataManager.getInstance();
         activeTransactions = new HashMap<>();
         tempVariables = new HashMap<>();
         waitQueue = new ArrayList<>();
-        waitSiteDownQueue = new ArrayList<>();
+        waitSiteDownQueue = new HashSet<>();
         waitForGraph = new Graph();
 
         for( int i = 1; i < 21; i++ )
@@ -43,16 +50,27 @@ public class TransactionManager {
         }
     }
 
+    /**
+     * This function is called during recover operation.
+     * It executes on recovery function and tries to execute the operations that were in queue due to site down
+     * @param siteNumber site to recover
+     */
     public void recover( int siteNumber )
     {
-        LOGGER.fine( "in recover" + siteNumber );
+        LOGGER.info( "Site " + siteNumber +" recovered");
         Site s = dm.onRecovery( siteNumber );
         executeSiteDownQueueOperations( s );
     }
 
+    /**
+     * This function is called during fail operation.
+     * It aborts the transactions that used this site.
+     * It also performs on fail operations(mentioned in onFail() function)
+     * @param siteNumber site to fail
+     */
     public void fail( int siteNumber )
     {
-        LOGGER.fine( "infail" + siteNumber );
+        LOGGER.info( "Site " + siteNumber +" failed");
 
         for( Transaction t: activeTransactions.values() )
         {
@@ -71,11 +89,15 @@ public class TransactionManager {
         dm.onFail( siteNumber );
     }
 
+    /**
+     * Exceutes the transactions that were waiting for a site to recover
+     * @param s recovered site
+     */
     public void executeSiteDownQueueOperations( Site s )
     {
-        ArrayList<Operation> waitRecovTemp = new ArrayList<>();
+        HashSet<Operation> waitRecovTemp = new HashSet<>();
 
-        waitRecovTemp = ( ArrayList ) waitSiteDownQueue.clone();
+        waitRecovTemp = ( HashSet ) waitSiteDownQueue.clone();
 
         for( Operation op: waitRecovTemp )
         {
@@ -87,12 +109,23 @@ public class TransactionManager {
         }
     }
 
+    /**
+     * This function is called when transaction begins
+     * It creates the transaction and adds the transaction in the active transaction queue
+     * @param transactionNumber new transaction number
+     */
     public void begin( int transactionNumber )
     {
         activeTransactions.put( transactionNumber, new Transaction( transactionNumber, false, timer++ ) );
         LOGGER.fine( "in begin" );
     }
 
+    /**
+     * This function is called when read only transaction begins
+     * It creates the transaction and adds the transaction in the active transaction queue
+     * It also saves the last commited values for this operation
+     * @param transactionNumber new transaction number
+     */
     public void beginRO( int transactionNumber )
     {
         activeTransactions.put( transactionNumber, new Transaction( transactionNumber, true, timer++ ) );
@@ -100,8 +133,18 @@ public class TransactionManager {
         LOGGER.fine( "in beginro" );
     }
 
+    /**
+     * This function is called when transaction ends
+     *
+     * If site was previously failed, it aborts that transaction
+     * It also aborts the transaction if no sites that were used to perform transaction are available for that transaction
+     * Else it commits the transaction
+     * @param transactionNumber
+     */
     public void end( int transactionNumber )
     {
+        LOGGER.fine("waitqueue:"+waitQueue);
+        LOGGER.fine("waitsite downqueue:"+waitSiteDownQueue);
         LOGGER.fine( "in end" );
         Transaction t = activeTransactions.get( transactionNumber );
 
@@ -118,7 +161,6 @@ public class TransactionManager {
 
         for( Map.Entry<Operation, ArrayList<Site> > entry : lockedVariables.entrySet() )
         {
-            /* System.out.println(entry); */
             if( !checkIsSiteUp( entry.getValue() ) )
             {
                 LOGGER.info( "Aborting the transaction since no sites are available" );
@@ -129,11 +171,13 @@ public class TransactionManager {
 
         /**Commit if everything is okay */
         commit( transactionNumber );
-
-        /* remove from wfg */
-        /* execute from waitQ */
     }
 
+    /**
+     * Checks if a all sites in a list are up
+     * @param sites list to sites
+     * @return True if all sites are up
+     */
     private boolean checkIsSiteUp( ArrayList<Site> sites )
     {
         for( Site s: sites )
@@ -147,6 +191,12 @@ public class TransactionManager {
         return true;
     }
 
+    /**
+     * Tries to run the operations in wait queue after every timestamp based on the updated variables
+     * It also sets parsing to true if the operation to be performed next is from the wait queue.
+     * If the operation got executed, it is removed from the waitqueue
+     * @param updated_vars
+     */
     private void parseWaitQueue( Set<Integer> updated_vars )
     {
         parsing = true;
@@ -173,37 +223,63 @@ public class TransactionManager {
                 }
             }
         }
+        parsing = false;
     }
 
+    /**
+     * The transaction with the transaction number is committed.
+     *
+     * If the operation was a write operation, its corresponding variables on upsites are updated.
+     * Once the transaction commits all the corresponding locks on the variables are removed.
+     * It also executes the operation in waitqueue if it was waiting for recovered sites variable to be written
+     * It also parses the waitqueue to executes operations waiting for this transaction to complete
+     * Also removes the transaction from active transactions
+     * @param transactionNumber
+     */
     private void commit( int transactionNumber )
     {
         LOGGER.fine( "in commit" );
         Transaction t = activeTransactions.get( transactionNumber );
-        LOGGER.info( "Comminting trasaction " + t );
+        LOGGER.info( "Commiting trasaction " + t );
         Map<Operation, ArrayList<Site> > lockedVariables = t.getVariablesLocked();
         Set<Integer> updated_vars = new HashSet<>();
 
-        /*System.out.println(lockedVariables.keySet()); */
         for( Operation op : lockedVariables.keySet() )
         {
             updated_vars.add( op.getVariableNumber() );
-
+            boolean temp = false;
             if( op.getOperation() == OperationType.WRITE )
             {
-                dm.updateVariableToParticularSite( op.getVariableNumber(), op.getValue(), lockedVariables.get( op ) );
+                temp = dm.updateVariableToParticularSite( op.getVariableNumber(), op.getValue(), lockedVariables.get( op ) );
             }
 
             dm.removeLocks( op.getVariableNumber(), op.getTransaction() );
+            if(temp){
+                HashSet<Operation> waitRecovTemp = new HashSet<>();
+                waitRecovTemp = ( HashSet<Operation> ) waitSiteDownQueue.clone();
+                for( Operation oper: waitRecovTemp )
+                {
+                    if( oper.getVariableNumber() == op.getVariableNumber() )
+                    {
+                        addAndExecuteOperation( oper );
+                        waitSiteDownQueue.remove( oper );
+                    }
+                }
+            }
         }
 
-        dm.dump();
-
-        /* set wasDown to false */
-        /* remove locks */
         activeTransactions.remove( t );
         parseWaitQueue( updated_vars );
     }
 
+    /**
+     * It aborts this transaction
+     * Once the transaction commits all the corresponding locks on the variables are removed.
+     * It updates temperory cached variables to old values, if any transaction aborts
+     * It also parses the waitqueue to executes operations waiting for this transaction to complete
+     * Also removes the transaction from active transactions
+     * @param transactionNumber
+     */
     private void abort( int transactionNumber )
     {
         LOGGER.fine( "in abort" );
@@ -222,7 +298,8 @@ public class TransactionManager {
 
                 if( sites.size() > 0 )
                 {
-                    tempVariables.put( op.getVariableNumber(), sites.get( 0 ).getVariable( op.getVariableNumber() ) );
+                    Variable v = new Variable( op.getVariableNumber(), sites.get( 0 ).getVariable( op.getVariableNumber() ).getValue());
+                    tempVariables.put( op.getVariableNumber(), v );
                 }
                 else
                 {
@@ -232,14 +309,6 @@ public class TransactionManager {
 
             dm.removeLocks( op.getVariableNumber(), op.getTransaction() );
         }
-
-        dm.dump();
-
-        for( int tempV : tempVariables.keySet() )
-        {
-            /* System.out.println(tempV+" "+tempVariables.get(tempV)); */
-        }
-
         ArrayList<Operation> waitTemp = new ArrayList<>();
         waitTemp = ( ArrayList ) waitQueue.clone();
 
@@ -251,11 +320,15 @@ public class TransactionManager {
             }
         }
 
-        /*System.out.println("waitq"+waitQueue); */
         parseWaitQueue( updated_vars );
         activeTransactions.remove( t );
     }
 
+    /**
+     * Returns active transactions based on transaction number
+     * @param transNumber
+     * @return  active transactions
+     */
     public Transaction getActiveTransactions( int transNumber )
     {
         return activeTransactions.get( transNumber );
@@ -266,6 +339,10 @@ public class TransactionManager {
         this.activeTransactions = activeTransactions;
     }
 
+    /**
+     * Based on the operation, performs read/write/read only
+     * @param oper operation
+     */
     public void addAndExecuteOperation( Operation oper )
     {
         if( oper.getOperation() == OperationType.READ )
@@ -282,6 +359,12 @@ public class TransactionManager {
         }
     }
 
+    /**
+     * Returns lock count on a variable on all the sites having it
+     * @param upSites
+     * @param op
+     * @return total locks
+     */
     private int isLockedCount( ArrayList<Site> upSites,
                                Operation op )
     {
@@ -309,6 +392,11 @@ public class TransactionManager {
         }
     }
 
+    /**
+     * Assigns READLOCK or WRITELOCK to all the variables on all the sites for that operation
+     * @param upSites
+     * @param op
+     */
     private void setLock( ArrayList<Site> upSites,
                           Operation op )
     {
@@ -327,6 +415,11 @@ public class TransactionManager {
         }
     }
 
+    /**
+     * Promotes lock from read to write lock for all the sites if variable already has readlock for that variable
+     * @param upSites
+     * @param op
+     */
     private void promoteLock( ArrayList<Site> upSites,
                               Operation op )
     {
@@ -338,15 +431,18 @@ public class TransactionManager {
         }
     }
 
+    /**
+     * Deadlock detection algorithm has been added. It looks for cycles and removes the youngest transaction if deadlock is detected
+     */
     private void detectDeadlock()
     {
         List<Integer> deadlockedVertices = waitForGraph.hasCycle();
-        /* System.out.println(deadlockedVertices); */
         int minTimestamp = Integer.MIN_VALUE;
         int youngestTransaction = 0;
 
         if( !deadlockedVertices.isEmpty() )
         {
+            LOGGER.info("Deadlock detected in "+deadlockedVertices);
             for( Integer transNumber : deadlockedVertices )
             {
                 Transaction current = activeTransactions.get( transNumber );
@@ -362,6 +458,18 @@ public class TransactionManager {
         }
     }
 
+    /**
+     * Performs read operation.
+     * It gets a valid upsite for the operation, if upsite is not found, operation is added to waitsitesdownqueue
+     * It gets readlock if variable has no locks and performs read
+     * It doesnot read from site that has corrupt variables(site recovered but not written)
+     * If variable only has readlocks it assigns readlocks and does read operation if waitqueue has not writes waiting for the locks to be released
+     * If there is a write lock by another transaction, operation is added to wait queue and in waitForGraph, deadlock detection is done
+     * If write is by same transaction, it does the read
+     * If transaction already has readlock on variable it does the read
+     * If variable only has readlocks adds opeartion to waitqueue if waitqueue has writes waiting for the locks to be released, also the operation is added to waitforqueue and deadlock detection is done
+     * @param op
+     */
     public void read( Operation op )
     {
         LOGGER.fine( "in read" );
@@ -417,6 +525,7 @@ public class TransactionManager {
                 }
                 else
                 {
+                    LOGGER.fine("in parsing");
                     parsing = false;
                 }
             }
@@ -435,6 +544,7 @@ public class TransactionManager {
                 }
                 else /* all readlocks */
                 {
+                    LOGGER.fine("in else");
                     boolean inWaitQueue = false;
 
                     for( Operation o : waitQueue )
@@ -484,10 +594,20 @@ public class TransactionManager {
         }
         else
         {
+            LOGGER.fine("Adding ["+op+"] to site down queue");
             waitSiteDownQueue.add( op );
         }
     }
 
+    /**
+     * Performs write operation.
+     * It gets a valid upsite for the operation, if upsite is not found, operation is added to waitsitesdownqueue
+     * It gets writelock if variable has no locks and updates tempvariables cache
+     * If there is a readlock or write lock by another transaction, operation is added to wait queue and in waitForGraph, deadlock detection is done
+     * If write is by same transaction, it does the write
+     * If transaction has readlock by the same transaction it promotes the lock to write lock
+     * @param op
+     */
     public void write( Operation op )
     {
         LOGGER.fine( "in write" );
@@ -509,8 +629,9 @@ public class TransactionManager {
             {
                 setLock( upSites, op );
                 op.getTransaction().addVariableLocked( op, upSites );
-                tvariable.setValue( op.getValue() );
                 LOGGER.info( op + " from value " + variable.getValue() );
+                tvariable.setValue( op.getValue() );
+
             }
             else
             {
@@ -544,7 +665,7 @@ public class TransactionManager {
 
                     for( Operation o : waitQueue )
                     {
-                        if( o.getVariableNumber() == op.getVariableNumber() ) /* dont skip writes */
+                        if( o.getVariableNumber() == op.getVariableNumber() && o!=op) /* dont skip writes */
                         {
                             inWaitQueue = true;
                             break;
@@ -592,6 +713,11 @@ public class TransactionManager {
         }
     }
 
+    /**
+     * Performs raedonly operation
+     * It alwas reads the last commited value before transaction begun from the readOnlyLastCommitedValue HashMap
+     * @param op
+     */
     public void readOnly( Operation op )
     {
         LOGGER.fine( "in readOnly" );

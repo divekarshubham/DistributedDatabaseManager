@@ -29,6 +29,11 @@ class Graph {
         allVertex = new HashMap<Long, Vertex>();
     }
 
+    /**
+     * Adds edge to waitforgraph
+     * @param id1 Transaction number
+     * @param id2 Transaction number
+     */
     public void addEdge( long id1,
                          long id2 )
     {
@@ -66,6 +71,10 @@ class Graph {
         vertex1.addAdjacentVertex( vertex2 );
     }
 
+    /**
+     * remove edge from wait for graph
+     * @param id
+     */
     public void removeEdge( long id )
     {
         Vertex done = allVertex.get( id );
@@ -192,6 +201,9 @@ class Graph {
     }
 }
 
+/**
+ * Creates vertex for graph
+ */
 class Vertex {
     long id;
     /** Edges are stored as adjacency list in each vertex */

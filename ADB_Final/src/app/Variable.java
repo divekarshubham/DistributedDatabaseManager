@@ -13,16 +13,24 @@ package app;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Variables for the site is created using this class
+ */
 public class Variable {
     private int value;
-    /** A variable can have multiple transactions holding read-locks on it */
+    /* A variable can have multiple transactions holding read-locks on it */
     private List<Transaction> lockedByTransactions;
     private LockType lockType;
     private boolean isLock;
     private int index;
-    /** When the site fails all the variables are marked corrupt to reflect they are unreadable */
+    /* When the site fails all the variables are marked corrupt to reflect they are unreadable */
     private boolean isCorrupt;
 
+    /**
+     * Creates variable object
+     * @param index
+     * @param value
+     */
     public Variable( int index,
                      int value )
     {

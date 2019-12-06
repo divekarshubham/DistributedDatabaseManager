@@ -10,12 +10,22 @@
  */
 package app;
 
+/**
+ * Operations are created for each incomming operation using this class
+ */
 public class Operation {
     private int valueToWrite;
     private OperationType operationPerformed;
     private Transaction transaction;
     private int variableNumber;
 
+    /**
+     * Operation object creation
+     * @param transaction
+     * @param operationPerformed
+     * @param variableNumber
+     * @param value
+     */
     public Operation( Transaction transaction,
                       OperationType operationPerformed,
                       int variableNumber,

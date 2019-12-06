@@ -25,7 +25,7 @@ public class FileOperation {
     void readFromFile( String filepath )
     {
         this.filepath = filepath;
-        /** Initialize the Transaction and Data Manager */
+        // Initialize the Transaction and Data Manager
         TransactionManager tm = new TransactionManager();
         DataManager dm = DataManager.getInstance();
         Operation op;

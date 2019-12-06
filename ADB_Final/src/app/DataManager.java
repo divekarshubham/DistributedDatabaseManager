@@ -26,16 +26,19 @@ public class DataManager {
 
     /**
      * @brief Initializes all the sites and assigns variables to them
+     * It also initialises variable values based on the variable index
+     * Adds even variables to all site
+     * Adds odd variables to (variableindex %10)+1 site
      */
     public DataManager()
     {
-        /** Initialize all the sites */
+        /* Initialize all the sites */
         for( int i = 1; i < 11; i++ )
         {
             this.sites.put( i, new Site( i ) );
         }
 
-        /** Initialize the Variables */
+        /* Initialize the Variables */
         for( int i = 1; i <= 20; i++ )
         {
             if( i % 2 == 0 )
@@ -58,7 +61,7 @@ public class DataManager {
     }
 
     /**
-     * @brief Singleton to create only one instace of the Data-Manager
+     * @brief Singleton to create only one instance of the Data-Manager
      * @return instace of the DM
      */
     public static DataManager getInstance()
@@ -73,7 +76,7 @@ public class DataManager {
 
     /**
      *
-     * @brief To change the value of the variable
+     * @brief To change the value of the variable at all sites
      * @param variableNumber variable to update
      * @param value          updated value
      */
@@ -259,18 +262,32 @@ public class DataManager {
         }
     }
 
-    public void updateVariableToParticularSite( int variableNumber,
-                                                int value,
-                                                ArrayList<Site> upsites )
+    /**
+     * Updates variables at a list of sites containing that variable. It is  called when a transaction commits and has write operations
+     * It updates variable values and resets corrupt.
+     * @param variableNumber
+     * @param value
+     * @param upsites
+     * @return
+     */
+    public boolean updateVariableToParticularSite( int variableNumber,
+                                                   int value,
+                                                   ArrayList<Site> upsites )
     {
+        boolean t = false;
         for( Site s : upsites )
         {
             if( s.isSiteUp() )
             {
                 Variable v = s.getVariable( variableNumber );
                 v.setValue( value );
+                if(v.isCorrupt()){
+                    t=true;
+                }
                 v.setCorrupt( false );
             }
         }
+        return t;
     }
+
 }
