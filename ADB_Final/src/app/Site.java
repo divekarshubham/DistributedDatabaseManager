@@ -5,15 +5,14 @@ import java.util.HashMap;
 /**
  * @file Site.java
  * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
- * @brief A warehouse of the data which may be up/down.
+ *  A warehouse of the data which may be up/down.
  * @version 0.1
- * @date 2019-12-02
+ * Date: 2019-12-02
  *
  * @copyright Copyright (c) 2019
  *
  */
 public class Site {
-
     private HashMap<Integer, Variable> variablesForSite = new HashMap<>( 21 );
     private boolean isUp;
     private int siteNo;
@@ -24,8 +23,10 @@ public class Site {
         this.isUp = true;
     }
 
-    public void setVariablesForSite(int index, Variable v) {
-        this.variablesForSite.put(index, v);
+    public void setVariablesForSite( int index,
+                                     Variable v )
+    {
+        this.variablesForSite.put( index, v );
     }
 
     @Override
@@ -38,7 +39,7 @@ public class Site {
         for( Integer i : variablesForSite.keySet() )
         {
             /*str.append(" x" + i + ": " + variablesForSite.get(i) + ","); */
-            str.append( " x" + i + ": " + variablesForSite.get( i ).getValue() +"," );
+            str.append( " x" + i + ": " + variablesForSite.get( i ).getValue() + "," );
         }
 
         /* Remove comma at the end */

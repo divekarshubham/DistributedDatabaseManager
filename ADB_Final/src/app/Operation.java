@@ -1,12 +1,11 @@
-
 package app;
 
 /**
  * @file Operation.java
  * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
- * @brief Corresponds to each action/operation performed by a transaction on a variable.
+ *  Corresponds to each action/operation performed by a transaction on a variable.
  * @version 0.1
- * @date 2019-12-02
+ * Date: 2019-12-02
  *
  * @copyright Copyright (c) 2019
  *

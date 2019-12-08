@@ -1,4 +1,3 @@
-
 package app;
 import java.util.ArrayList;
 import java.util.List;
@@ -6,9 +5,9 @@ import java.util.List;
 /**
  * @file main.c
  * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
- * @brief Data-Structure to store all the information of a variable.
+ *  Data-Structure to store all the information of a variable.
  * @version 0.1
- * @date 2019-12-02
+ * Date: 2019-12-02
  *
  * @copyright Copyright (c) 2019
  *
@@ -109,7 +108,7 @@ public class Variable {
     }
 
     /**
-     * @brief used when a transaction wants to convert a readlock to writelock
+     *  used when a transaction wants to convert a readlock to writelock
      */
     public void promoteLock()
     {
@@ -128,7 +127,7 @@ public class Variable {
     }
 
     /**
-     * @brief used a site fails and all the locks need to be cleared
+     *  used a site fails and all the locks need to be cleared
      */
     public void removeAllLocks()
     {

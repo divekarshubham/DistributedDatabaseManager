@@ -3,12 +3,13 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.logging.Logger;
+
 /**
  * @file FileOperation.java
  * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
- * @brief Reads the input lines and generates a corresponding operation
+ *  Reads the input lines and generates a corresponding operation
  * @version 0.1
- * @date 2019-12-02
+ * Date: 2019-12-02
  *
  * @copyright Copyright (c) 2019
  *
@@ -19,14 +20,14 @@ public class FileOperation {
     private final static Logger LOGGER = Logger.getLogger( FileOperation.class.getName() );
 
     /**
-     * @brief Reads each line in a file and directs the TM to issue a corresponding
+     *  Reads each line in a file and directs the TM to issue a corresponding
      *        action
      * @param filepath path to input file
      */
     void readFromFile( String filepath )
     {
         this.filepath = filepath;
-        // Initialize the Transaction and Data Manager
+        /* Initialize the Transaction and Data Manager */
         TransactionManager tm = new TransactionManager();
         DataManager dm = DataManager.getInstance();
         Operation op;
@@ -40,10 +41,13 @@ public class FileOperation {
             while( ( line = br.readLine() ) != null )
             {
                 line = line.replace( " ", "" );
-                // Get the action
-                if(line.startsWith("/")){
+
+                /* Get the action */
+                if( line.startsWith( "/" ) )
+                {
                     continue;
                 }
+
                 String transaction = line.substring( 0, line.indexOf( "(" ) );
 
                 switch( transaction )

@@ -4,12 +4,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.logging.*;
+
 /**
  * @file Main.java
  * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
- * @brief Entering class of the program that initiates the file reader and handlers for writing to the file
+ *  Entering class of the program that initiates the file reader and handlers for writing to the file
  * @version 0.1
- * @date 2019-12-02
+ * Date: 2019-12-02
  *
  * @copyright Copyright (c) 2019
  *
@@ -36,7 +37,7 @@ public class Main {
 
         try {
             PrintStream out = new PrintStream( new FileOutputStream( args[ 1 ] ) );
-            //System.setOut( out );
+            /*System.setOut( out ); */
             fh = new FileHandler( args[ 1 ], true );
             rootLogger.addHandler( fh );
             SimpleFormatter formatter = new SimpleFormatter();

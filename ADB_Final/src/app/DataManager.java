@@ -1,4 +1,3 @@
-
 package app;
 
 import java.util.*;
@@ -8,9 +7,9 @@ import java.util.logging.Logger;
 /**
  * @file DataManager.java
  * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
- * @brief Handles all operations on data, by directing each site
+ *  Handles all operations on data, by directing each site
  * @version 0.1
- * @date 2019-12-02
+ * Date: 2019-12-02
  *
  * @copyright Copyright (c) 2019
  *
@@ -26,7 +25,7 @@ public class DataManager {
     private static DataManager instance = null;
 
     /**
-     * @brief Initializes all the sites and assigns variables to them
+     *  Initializes all the sites and assigns variables to them
      * It also initialises variable values based on the variable index
      * Adds even variables to all site
      * Adds odd variables to (variableindex %10)+1 site
@@ -62,7 +61,7 @@ public class DataManager {
     }
 
     /**
-     * @brief Singleton to create only one instance of the Data-Manager
+     *  Singleton to create only one instance of the Data-Manager
      * @return instace of the DM
      */
     public static DataManager getInstance()
@@ -77,7 +76,7 @@ public class DataManager {
 
     /**
      *
-     * @brief To change the value of the variable at all sites
+     *  To change the value of the variable at all sites
      * @param variableNumber variable to update
      * @param value          updated value
      */
@@ -110,7 +109,7 @@ public class DataManager {
     }
 
     /**
-     * @brief Take down a particular site and delete its lock table
+     *  Take down a particular site and delete its lock table
      * @param siteNo site to fail
      */
     public void onFail( int siteNo )
@@ -122,7 +121,7 @@ public class DataManager {
     }
 
     /**
-     * @brief Recover a particular site
+     *  Recover a particular site
      * @param siteNo site to recover
      */
     public Site onRecovery( int siteNo )
@@ -134,7 +133,7 @@ public class DataManager {
     }
 
     /**
-     * @brief Displays all variables at all sites.
+     *  Displays all variables at all sites.
      */
     public void dump()
     {
@@ -145,7 +144,7 @@ public class DataManager {
     }
 
     /**
-     * @brief Makes a temporary storage for readonly variables that stores the
+     *  Makes a temporary storage for readonly variables that stores the
      *        values before the transaction began
      * @return List of values of all variables
      */
@@ -162,7 +161,7 @@ public class DataManager {
     }
 
     /**
-     * @brief check if variable is even/odd and fetch from corresponding site
+     *  check if variable is even/odd and fetch from corresponding site
      * @param variableNumber Variable to fetch
      * @return value fo the variable
      */
@@ -192,7 +191,7 @@ public class DataManager {
     }
 
     /**
-     * @brief Fetch the object of a site
+     *  Fetch the object of a site
      * @param siteNo
      * @return reference to the site
      */
@@ -202,7 +201,7 @@ public class DataManager {
     }
 
     /**
-     * @brief to check if the variables are available we construct a list of all
+     *  to check if the variables are available we construct a list of all
      *        sites (corresponding to it) that are up
      * @param variableNumber
      * @return A list of available sites
@@ -235,7 +234,7 @@ public class DataManager {
     }
 
     /**
-     * @brief When a transaction ends we have to remove all its aquired locks
+     *  When a transaction ends we have to remove all its aquired locks
      * @param variableNumber Variable for which lock was acquired
      * @param transaction    Transaction that acquired the lock
      */
@@ -276,19 +275,23 @@ public class DataManager {
                                                    ArrayList<Site> upsites )
     {
         boolean t = false;
+
         for( Site s : upsites )
         {
             if( s.isSiteUp() )
             {
                 Variable v = s.getVariable( variableNumber );
                 v.setValue( value );
-                if(v.isCorrupt()){
-                    t=true;
+
+                if( v.isCorrupt() )
+                {
+                    t = true;
                 }
+
                 v.setCorrupt( false );
             }
         }
+
         return t;
     }
-
 }
