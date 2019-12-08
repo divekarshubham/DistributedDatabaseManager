@@ -1,5 +1,7 @@
 package app;
 
+import sun.plugin.javascript.navig.Array;
+
 import java.util.*;
 import java.util.logging.Logger;
 /**
@@ -152,7 +154,7 @@ public class TransactionManager {
         /** Performing validations */
         if( abortTransaction.contains( t ) )
         {
-            LOGGER.info( "Aborting the transaction since a corresponding site previously failed" );
+            LOGGER.info( "Aborting the transaction "+ transactionNumber+" since a corresponding site previously failed" );
             abort( t.getTransactionNumber() );
             abortTransaction.remove( t );
             return;
@@ -204,23 +206,31 @@ public class TransactionManager {
         ArrayList<Operation> waitTemp = new ArrayList<>();
         waitTemp = ( ArrayList ) waitQueue.clone();
 
-        for( Operation op : waitTemp )
-        {
-            if( updated_vars.size() > 0 )
-            {
-                if( updated_vars.contains( op.getVariableNumber() ) )
-                {
-                    addAndExecuteOperation( op );
+        if(updated_vars.size() > 0) {
+            for (Operation op : waitTemp) {
+                if (updated_vars.size() > 0) {
+                    if (updated_vars.contains(op.getVariableNumber())) {
+                        addAndExecuteOperation(op);
 
-                    if( !parsing )
-                    {
-                        updated_vars.remove( op.getVariableNumber() );
-                        parsing = true;
+                        if (!parsing) {
+                            updated_vars.remove(op.getVariableNumber());
+                            parsing = true;
+                        } else {
+                            waitQueue.remove(op);
+                        }
                     }
-                    else
-                    {
-                        waitQueue.remove( op );
-                    }
+                }
+
+            }
+        }
+        else {
+            for (Operation op : waitTemp) {
+                addAndExecuteOperation(op);
+                if (!parsing) {
+                    updated_vars.remove(op.getVariableNumber());
+                    parsing = true;
+                } else {
+                    waitQueue.remove(op);
                 }
             }
         }
@@ -333,8 +343,8 @@ public class TransactionManager {
             }
         }
 
-        parseWaitQueue( updated_vars );
         activeTransactions.remove( t );
+        parseWaitQueue( updated_vars );
     }
 
     /**
@@ -468,8 +478,10 @@ public class TransactionManager {
             }
             boolean temp = waitForGraph.removeEdges(youngestTransaction);
             abort( youngestTransaction );
-            if (temp)
+            if (temp) {
+                parseWaitQueue(new HashSet<>());
                 detectDeadlock();
+            }
 
         }
     }
@@ -579,17 +591,21 @@ public class TransactionManager {
                             LOGGER.info( "WRITE transaction waiting for lock, Adding[" + op + "] to waitQueue" );
                             waitQueue.add( op );
 
-                            for( Transaction t : variable.getLockedByTransaction() )
-                            {
-                                waitForGraph.addEdge( op.getTransaction().getTransactionNumber(), t.getTransactionNumber(), op.getVariableNumber() );
-                            }
-
-                            for( Operation operation: waitQueue )
-                            {
-                                if( ( op.getVariableNumber() == operation.getVariableNumber() ) && ( operation.getOperation() == OperationType.WRITE ) )
-                                {
-                                    waitForGraph.addEdge( op.getTransaction().getTransactionNumber(), operation.getTransaction().getTransactionNumber(), op.getVariableNumber() );
+                            if (!inWaitQueue) {
+                                for (Transaction t : variable.getLockedByTransaction()) {
+                                    waitForGraph.addEdge(op.getTransaction().getTransactionNumber(), t.getTransactionNumber(), op.getVariableNumber());
                                 }
+                            }
+                            else {
+                                Operation temp = null;
+                                for( Operation operation: waitQueue )
+                                {
+                                    if( ( op.getVariableNumber() == operation.getVariableNumber() ) && ( operation.getOperation() == OperationType.WRITE ))
+                                    {
+                                        temp = operation;
+                                    }
+                                }
+                                waitForGraph.addEdge( op.getTransaction().getTransactionNumber(), temp.getTransaction().getTransactionNumber(), op.getVariableNumber() );
                             }
 
                             detectDeadlock();

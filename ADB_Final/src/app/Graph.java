@@ -43,7 +43,7 @@ class Graph {
         {
             return;
         }
-        System.out.println("Edge from "+id1+ " to "+id2);
+       // System.out.println("Edge from "+id1+ " to "+id2);
         Vertex vertex1 = null;
 
         if( allVertex.containsKey( id1 ) )
