@@ -1,20 +1,16 @@
 begin(T1)
-begin(T4)
-end(T4)
-begin(T2) //hi
-begin(T3)
-W(T1,x6,66)
-fail(2) //u
-W(T2,x8,88) //u
-R(T2,x3)
-R(T1, x5)
-W(T1, x1, 86)
-W(T2, x1, 87)
-W(T3, x1, 84)
-W(T1, x3, 81)
-W(T3, x3, 89) //u
-W(T2, x3, 82)
-recover(2) //u
+begin(T2)
+R(T2, x2)
+W(T1, x2, 202)
+W(T2 ,x2, 302)
 end(T1)
-end(T3) //u
-dump() //u
+dump()
+//begin(T1)
+//begin(T2)
+//begin(T3)
+//R(T1,x1)
+//W(T2,x1,40)
+//W(T3,x1,40)
+//W(T1,x1,40)
+//end(T1)
+//dump()

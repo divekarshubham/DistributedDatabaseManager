@@ -35,7 +35,8 @@ class Graph {
      * @param id2 Transaction number
      */
     public void addEdge( long id1,
-                         long id2 )
+                         long id2,
+                         int var)
     {
         // Cannot add a self cycle
         if( id1 == id2 )
@@ -68,23 +69,33 @@ class Graph {
         }
 
         // Add the vertex to the adjacency list of the vertex
-        vertex1.addAdjacentVertex( vertex2 );
+        vertex1.addAdjacentVertex( vertex2 ,var);
     }
 
     /**
      * remove all edge from wait for graph for a vertex when the transaction is deleted.
      * @param id
      */
-    public void removeEdges( long id )
+    public boolean removeEdges( long id )
     {
         Vertex done = allVertex.get( id );
-
+        boolean flag = false;
         for( Map.Entry<Long, Vertex> entry : allVertex.entrySet() )
         {
-            entry.getValue().removeAdjacentVertex( done );
+            Vertex v = entry.getValue();
+            int var = v.getDependency(done);
+            if(var != 0){
+                List<Vertex> a = done.checkForTransitivity(var);
+                for (Vertex vertex: a) {
+                    this.addEdge(v.getId(),vertex.getId(),var);
+                    flag = true;
+                }
+                v.removeAdjacentVertex( done );
+            }
         }
 
         allVertex.remove( id );
+        return flag;
     }
 
     public Collection<Vertex> getAllVertex()
@@ -207,7 +218,7 @@ class Graph {
 class Vertex {
     long id;
     /* Edges are stored as adjacency list in each vertex */
-    private List<Vertex> adjacentVertex = new ArrayList<>();
+    private Map<Vertex, Integer> adjacentVertex = new HashMap<>();
 
     Vertex( long id )
     {
@@ -219,14 +230,14 @@ class Vertex {
         return id;
     }
 
-    public void addAdjacentVertex( Vertex v )
+    public void addAdjacentVertex( Vertex v, Integer i )
     {
-        adjacentVertex.add( v );
+        adjacentVertex.put( v , i);
     }
 
-    public List<Vertex> getAdjacentVertexes()
+    public Set<Vertex> getAdjacentVertexes()
     {
-        return adjacentVertex;
+        return adjacentVertex.keySet();
     }
 
     public void removeAdjacentVertex( Vertex v )
@@ -243,5 +254,20 @@ class Vertex {
     public void print()
     {
         System.out.println( adjacentVertex );
+    }
+
+    public int getDependency(Vertex done) {
+        if(adjacentVertex.containsKey(done))
+            return adjacentVertex.get(done);
+        return 0;
+    }
+
+    public List<Vertex> checkForTransitivity(int var){
+        List<Vertex> t = new ArrayList<>();
+        for (Map.Entry<Vertex, Integer> entry : adjacentVertex.entrySet()){
+            if (entry.getValue() == var)
+                t.add(entry.getKey());
+        }
+        return t;
     }
 }

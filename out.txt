@@ -1,54 +1,18 @@
-Dec 07, 2019 11:26:49 PM app.TransactionManager begin
+Dec 08, 2019 12:22:14 AM app.TransactionManager begin
 INFO: Begin transaction 1
-Dec 07, 2019 11:26:49 PM app.TransactionManager begin
-INFO: Begin transaction 4
-Dec 07, 2019 11:26:49 PM app.TransactionManager commit
-INFO: Commiting trasaction Transaction: 4 began at: 1
-Dec 07, 2019 11:26:49 PM app.TransactionManager begin
+Dec 08, 2019 12:22:14 AM app.TransactionManager begin
 INFO: Begin transaction 2
-Dec 07, 2019 11:26:49 PM app.TransactionManager begin
-INFO: Begin transaction 3
-Dec 07, 2019 11:26:49 PM app.TransactionManager write
-INFO: Operation details: Transaction: 1 began at: 0 operation type:WRITE variable:6 Val:66 from value 60
-Dec 07, 2019 11:26:49 PM app.TransactionManager fail
-INFO: Site 2 failed
-Dec 07, 2019 11:26:49 PM app.TransactionManager write
-INFO: Operation details: Transaction: 2 began at: 2 operation type:WRITE variable:8 Val:88 from value 80
-Dec 07, 2019 11:26:49 PM app.TransactionManager read
-INFO: x3 : 30 from site 4
-Dec 07, 2019 11:26:49 PM app.TransactionManager read
-INFO: x5 : 50 from site 6
-Dec 07, 2019 11:26:49 PM app.TransactionManager write
-INFO: All corresponding sites down, adding [Operation details: Transaction: 1 began at: 0 operation type:WRITE variable:1 Val:86] to wait for sites waitQueue
-Dec 07, 2019 11:26:49 PM app.TransactionManager write
-INFO: All corresponding sites down, adding [Operation details: Transaction: 2 began at: 2 operation type:WRITE variable:1 Val:87] to wait for sites waitQueue
-Dec 07, 2019 11:26:49 PM app.TransactionManager write
-INFO: All corresponding sites down, adding [Operation details: Transaction: 3 began at: 3 operation type:WRITE variable:1 Val:84] to wait for sites waitQueue
-Dec 07, 2019 11:26:49 PM app.TransactionManager write
-INFO: READ LOCK by multiple transactions/other transaction, Adding [Operation details: Transaction: 1 began at: 0 operation type:WRITE variable:3 Val:81] to waitQueue
-Dec 07, 2019 11:26:49 PM app.TransactionManager write
-INFO: READ LOCK by multiple transactions/other transaction, Adding [Operation details: Transaction: 3 began at: 3 operation type:WRITE variable:3 Val:89] to waitQueue
-Dec 07, 2019 11:26:49 PM app.TransactionManager write
-INFO: READ LOCK by multiple transactions/other transaction, Adding [Operation details: Transaction: 2 began at: 2 operation type:WRITE variable:3 Val:82] to waitQueue
-Dec 07, 2019 11:26:49 PM app.TransactionManager detectDeadlock
-INFO: Deadlock detected in [3, 1, 2]
-Dec 07, 2019 11:26:49 PM app.TransactionManager abort
-INFO: Aborting transaction Transaction: 3 began at: 3
-Dec 07, 2019 11:26:49 PM app.TransactionManager recover
-INFO: Site 2 recovered
-Dec 07, 2019 11:26:49 PM app.TransactionManager write
-INFO: Operation details: Transaction: 1 began at: 0 operation type:WRITE variable:1 Val:86 from value 10
-Dec 07, 2019 11:26:49 PM app.TransactionManager write
-INFO: WRITE lock by transaction 1, Adding[Operation details: Transaction: 2 began at: 2 operation type:WRITE variable:1 Val:87] to waitQueue
-Dec 07, 2019 11:26:49 PM app.TransactionManager detectDeadlock
-INFO: Deadlock detected in [2, 1]
-Dec 07, 2019 11:26:49 PM app.TransactionManager abort
-INFO: Aborting transaction Transaction: 2 began at: 2
-Dec 07, 2019 11:26:49 PM app.TransactionManager write
-INFO: Operation details: Transaction: 1 began at: 0 operation type:WRITE variable:3 Val:81 from value 30
-Dec 07, 2019 11:26:49 PM app.TransactionManager end
-INFO: Aborting the transaction since a corresponding site previously failed
-Dec 07, 2019 11:26:49 PM app.TransactionManager abort
-INFO: Aborting transaction Transaction: 1 began at: 0
-Dec 07, 2019 11:26:49 PM app.TransactionManager commit
-INFO: Commiting trasaction Transaction: 3 began at: 3
+Dec 08, 2019 12:22:14 AM app.TransactionManager read
+INFO: x2 : 20 from site 1
+Dec 08, 2019 12:22:14 AM app.TransactionManager write
+INFO: READ LOCK by multiple transactions/other transaction, Adding [Operation details: Transaction: 1 began at: 0 operation type:WRITE variable:2 Val:202] to waitQueue
+Dec 08, 2019 12:22:14 AM app.TransactionManager write
+INFO: READ LOCK by multiple transactions/other transaction, Adding [Operation details: Transaction: 2 began at: 1 operation type:WRITE variable:2 Val:302] to waitQueue
+Dec 08, 2019 12:22:14 AM app.TransactionManager detectDeadlock
+INFO: Deadlock detected in [1, 2]
+Dec 08, 2019 12:22:14 AM app.TransactionManager abort
+INFO: Aborting transaction Transaction: 2 began at: 1
+Dec 08, 2019 12:22:14 AM app.TransactionManager write
+INFO: Operation details: Transaction: 1 began at: 0 operation type:WRITE variable:2 Val:202 from value 20
+Dec 08, 2019 12:22:14 AM app.TransactionManager commit
+INFO: Commiting trasaction Transaction: 1 began at: 0

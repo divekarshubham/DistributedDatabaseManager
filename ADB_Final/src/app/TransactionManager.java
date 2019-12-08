@@ -466,7 +466,10 @@ public class TransactionManager {
                     youngestTransaction = current.getTransactionNumber();
                 }
             }
+            boolean temp = waitForGraph.removeEdges(youngestTransaction);
             abort( youngestTransaction );
+            if (temp)
+                detectDeadlock();
 
         }
     }
@@ -533,7 +536,7 @@ public class TransactionManager {
                     waitQueue.add( op );
                     /* Adding to waitforgraph & deadlock detection */
                     waitForGraph.addEdge( op.getTransaction().getTransactionNumber(),
-                                          variable.getLockedByTransaction().get( 0 ).getTransactionNumber() );
+                                          variable.getLockedByTransaction().get( 0 ).getTransactionNumber(), op.getVariableNumber() );
                     detectDeadlock();
                 }
                 else
@@ -578,14 +581,14 @@ public class TransactionManager {
 
                             for( Transaction t : variable.getLockedByTransaction() )
                             {
-                                waitForGraph.addEdge( op.getTransaction().getTransactionNumber(), t.getTransactionNumber() );
+                                waitForGraph.addEdge( op.getTransaction().getTransactionNumber(), t.getTransactionNumber(), op.getVariableNumber() );
                             }
 
                             for( Operation operation: waitQueue )
                             {
                                 if( ( op.getVariableNumber() == operation.getVariableNumber() ) && ( operation.getOperation() == OperationType.WRITE ) )
                                 {
-                                    waitForGraph.addEdge( op.getTransaction().getTransactionNumber(), operation.getTransaction().getTransactionNumber() );
+                                    waitForGraph.addEdge( op.getTransaction().getTransactionNumber(), operation.getTransaction().getTransactionNumber(), op.getVariableNumber() );
                                 }
                             }
 
@@ -664,7 +667,8 @@ public class TransactionManager {
                         LOGGER.info( "WRITE lock by transaction " + variable.getLockedByTransaction().get( 0 ).getTransactionNumber() + ", Adding[" + op
                                      + "] to waitQueue" );
                         waitForGraph.addEdge( op.getTransaction().getTransactionNumber(),
-                                              variable.getLockedByTransaction().get( 0 ).getTransactionNumber() );
+                                              variable.getLockedByTransaction().get( 0 ).getTransactionNumber(),
+                                              op.getVariableNumber());
                         detectDeadlock();
                     }
                     else
@@ -702,7 +706,7 @@ public class TransactionManager {
                             /* if no transaction in waitQ, wait for all the transactions to give up their read locks*/
                             if (!inWaitQueue)
                                 for (Transaction t : variable.getLockedByTransaction()) {
-                                    waitForGraph.addEdge(op.getTransaction().getTransactionNumber(), t.getTransactionNumber());
+                                    waitForGraph.addEdge(op.getTransaction().getTransactionNumber(), t.getTransactionNumber(), op.getVariableNumber());
                                 }
                             else{
                                 Operation temp = null;
@@ -711,7 +715,7 @@ public class TransactionManager {
                                         temp = operation;
                                     }
                                 }
-                                waitForGraph.addEdge(op.getTransaction().getTransactionNumber(), temp.getTransaction().getTransactionNumber());
+                                waitForGraph.addEdge(op.getTransaction().getTransactionNumber(), temp.getTransaction().getTransactionNumber(), op.getVariableNumber());
                             }
 
                             detectDeadlock();
