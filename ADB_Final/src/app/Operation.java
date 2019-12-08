@@ -1,17 +1,15 @@
+
+package app;
+
 /**
  * @file Operation.java
  * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
- * @brief Corresponds to each action performed by a transaction on a variable.
+ * @brief Corresponds to each action/operation performed by a transaction on a variable.
  * @version 0.1
  * @date 2019-12-02
  *
  * @copyright Copyright (c) 2019
  *
- */
-package app;
-
-/**
- * Operations are created for each incomming operation using this class
  */
 public class Operation {
     private int valueToWrite;

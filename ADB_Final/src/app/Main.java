@@ -1,3 +1,9 @@
+package app;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.logging.*;
 /**
  * @file Main.java
  * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
@@ -8,13 +14,6 @@
  * @copyright Copyright (c) 2019
  *
  */
-package app;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.logging.*;
-
 public class Main {
     /**
      * Main class, starts running from here, it sets the logger level and has logic to write to a file

@@ -1,3 +1,10 @@
+
+package app;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @file Transaction.java
  * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
@@ -8,19 +15,12 @@
  * @copyright Copyright (c) 2019
  *
  */
-package app;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Transaction {
     private int transactionNumber;
     private int timestamp;
     private boolean isReadOnly;
-    /** We need to keep track of the variables and all sites that the transaction has placed locks on */
+    // We need to keep track of the variables and all sites that the transaction has placed locks on
     private Map<Operation, ArrayList<Site> > variablesLocked = new HashMap<>(); 
 
     public Transaction( int transactionNumber,

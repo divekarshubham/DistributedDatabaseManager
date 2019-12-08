@@ -1,21 +1,22 @@
+package app;
+
+import java.util.*;
+import java.util.logging.Logger;
 /**
  * @file TransactionManager.java
  * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
  * @brief Main driver of the program which is responsible for executing the operations and queing them if needed. It also manages the life cycle of each transaction.
+ * It can perform transactions like read, write, end, commit and abort.
+ * It also has an instance of data manager to access data form the sites
  * @version 0.1
  * @date 2019-12-02
  *
  * @copyright Copyright (c) 2019
  *
  */
-package app;
-
-import java.util.*;
-import java.util.logging.Logger;
 
 /**
- * This class manages all the transactions. It can perform transactions like read, write, end, commit and abort.
- * It also has an instance of data manager to access data form the sites
+
  */
 public class TransactionManager {
     private final static Logger LOGGER = Logger.getLogger( TransactionManager.class.getName() );
@@ -117,7 +118,7 @@ public class TransactionManager {
     public void begin( int transactionNumber )
     {
         activeTransactions.put( transactionNumber, new Transaction( transactionNumber, false, timer++ ) );
-        LOGGER.fine( "in begin" );
+        LOGGER.info( "Begin transaction "+transactionNumber );
     }
 
     /**
@@ -130,7 +131,7 @@ public class TransactionManager {
     {
         activeTransactions.put( transactionNumber, new Transaction( transactionNumber, true, timer++ ) );
         readOnlyLastCommitedValue.put( transactionNumber, dm.lastCommitedValuesForReadOnly() );
-        LOGGER.fine( "in beginro" );
+        LOGGER.info( "Begin readonly transaction " + transactionNumber );
     }
 
     /**
@@ -239,6 +240,7 @@ public class TransactionManager {
     private void commit( int transactionNumber )
     {
         LOGGER.fine( "in commit" );
+        waitForGraph.removeEdges(transactionNumber);
         Transaction t = activeTransactions.get( transactionNumber );
         LOGGER.info( "Commiting trasaction " + t );
         Map<Operation, ArrayList<Site> > lockedVariables = t.getVariablesLocked();
@@ -283,6 +285,7 @@ public class TransactionManager {
     private void abort( int transactionNumber )
     {
         LOGGER.fine( "in abort" );
+        waitForGraph.removeEdges(transactionNumber);
         Transaction t = activeTransactions.get( transactionNumber );
         Map<Operation, ArrayList<Site> > lockedVariables = t.getVariablesLocked();
         Set<Integer> updated_vars = new HashSet<>();
@@ -317,6 +320,16 @@ public class TransactionManager {
             if( op.getTransaction().getTransactionNumber() == transactionNumber )
             {
                 waitQueue.remove( op );
+            }
+        }
+        HashSet<Operation> waitSiteTemp = new HashSet();
+        waitSiteTemp = ( HashSet<Operation> ) waitSiteDownQueue.clone();
+
+        for( Operation op : waitSiteTemp )
+        {
+            if( op.getTransaction().getTransactionNumber() == transactionNumber )
+            {
+                waitSiteDownQueue.remove( op );
             }
         }
 
@@ -453,8 +466,8 @@ public class TransactionManager {
                     youngestTransaction = current.getTransactionNumber();
                 }
             }
-
             abort( youngestTransaction );
+
         }
     }
 
@@ -478,7 +491,7 @@ public class TransactionManager {
 
         if( upSites.isEmpty() )
         {
-            LOGGER.fine( "All corresponding sites down, adding [" + op + "] to wait for sites waitQueue" );
+            LOGGER.info( "All corresponding sites down, adding [" + op + "] to wait for sites waitQueue" );
             waitSiteDownQueue.add( op );
             return;
         }
@@ -515,8 +528,8 @@ public class TransactionManager {
             {
                 if( !parsing )
                 {
-                    LOGGER.fine( "WRITE LOCK BY" + variable.getLockedByTransaction().get( 0 ) + ", Adding[" + op
-                                 + "] to waitQueue" );
+                    LOGGER.info( "WRITE LOCK BY Transaction " + variable.getLockedByTransaction().get( 0 ).getTransactionNumber() + ", Adding[" + op
+                                 + "] to waitQueue.");
                     waitQueue.add( op );
                     /* Adding to waitforgraph & deadlock detection */
                     waitForGraph.addEdge( op.getTransaction().getTransactionNumber(),
@@ -560,7 +573,7 @@ public class TransactionManager {
                     {
                         if( !parsing )
                         {
-                            LOGGER.fine( "WRITE transaction waiting for lock, Adding[" + op + "] to waitQueue" );
+                            LOGGER.info( "WRITE transaction waiting for lock, Adding[" + op + "] to waitQueue" );
                             waitQueue.add( op );
 
                             for( Transaction t : variable.getLockedByTransaction() )
@@ -594,7 +607,7 @@ public class TransactionManager {
         }
         else
         {
-            LOGGER.fine("Adding ["+op+"] to site down queue");
+            LOGGER.info("Adding ["+op+"] to site down queue");
             waitSiteDownQueue.add( op );
         }
     }
@@ -617,7 +630,7 @@ public class TransactionManager {
         if( upSites.isEmpty() )
         {
             waitSiteDownQueue.add( op );
-            LOGGER.fine( "All corresponding sites down, adding [" + op + "] to wait for sites waitQueue" );
+            LOGGER.info( "All corresponding sites down, adding [" + op + "] to wait for sites waitQueue" );
             return;
         }
         else
@@ -648,7 +661,7 @@ public class TransactionManager {
                     if( !parsing )
                     {
                         waitQueue.add( op );
-                        LOGGER.fine( "WRITE LOCK BY" + variable.getLockedByTransaction().get( 0 ) + ", Adding[" + op
+                        LOGGER.info( "WRITE lock by transaction " + variable.getLockedByTransaction().get( 0 ).getTransactionNumber() + ", Adding[" + op
                                      + "] to waitQueue" );
                         waitForGraph.addEdge( op.getTransaction().getTransactionNumber(),
                                               variable.getLockedByTransaction().get( 0 ).getTransactionNumber() );
@@ -682,23 +695,23 @@ public class TransactionManager {
                     }
                     else
                     {
-                        if( !parsing )
-                        {
-                            LOGGER.fine( "READ LOCK by multiple transactions/other transaction, Adding [" + op
-                                         + "] to waitQueue" );
-                            waitQueue.add( op );
-
-                            for( Transaction t : variable.getLockedByTransaction() )
-                            {
-                                waitForGraph.addEdge( op.getTransaction().getTransactionNumber(), t.getTransactionNumber() );
-                            }
-
-                            for( Operation operation: waitQueue )
-                            {
-                                if( op.getVariableNumber() == operation.getVariableNumber() )
-                                {
-                                    waitForGraph.addEdge( op.getTransaction().getTransactionNumber(), operation.getTransaction().getTransactionNumber() );
+                        if( !parsing ) {
+                            LOGGER.info("READ LOCK by multiple transactions/other transaction, Adding [" + op
+                                    + "] to waitQueue");
+                            waitQueue.add(op);
+                            /* if no transaction in waitQ, wait for all the transactions to give up their read locks*/
+                            if (!inWaitQueue)
+                                for (Transaction t : variable.getLockedByTransaction()) {
+                                    waitForGraph.addEdge(op.getTransaction().getTransactionNumber(), t.getTransactionNumber());
                                 }
+                            else{
+                                Operation temp = null;
+                                for (Operation operation : waitQueue) {
+                                    if (op.getVariableNumber() == operation.getVariableNumber() && op.getTransaction().getTransactionNumber()!=operation.getTransaction().getTransactionNumber()) {
+                                        temp = operation;
+                                    }
+                                }
+                                waitForGraph.addEdge(op.getTransaction().getTransactionNumber(), temp.getTransaction().getTransactionNumber());
                             }
 
                             detectDeadlock();
@@ -721,8 +734,12 @@ public class TransactionManager {
     public void readOnly( Operation op )
     {
         LOGGER.fine( "in readOnly" );
-        int readValue = readOnlyLastCommitedValue.get( op.getTransaction().getTransactionNumber() )
-                           .get( op.getVariableNumber() - 1 );
+        int readValue = Integer.MIN_VALUE;
+        ArrayList<Site> upSites = dm.getUpSites( op.getVariableNumber() );
+        if(!upSites.isEmpty()) {
+            readValue = readOnlyLastCommitedValue.get(op.getTransaction().getTransactionNumber())
+                    .get(op.getVariableNumber() - 1);
+        }
 
         if( readValue != Integer.MIN_VALUE )
         {
@@ -730,7 +747,7 @@ public class TransactionManager {
         }
         else
         {
-            LOGGER.fine( "All sites down, Adding [" + op + "] to waitQueue" );
+            LOGGER.info( "All sites down, Adding [" + op + "] to waitQueue" );
             waitSiteDownQueue.add( op );
         }
     }

@@ -1,3 +1,8 @@
+package app;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.logging.Logger;
 /**
  * @file FileOperation.java
  * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
@@ -8,14 +13,10 @@
  * @copyright Copyright (c) 2019
  *
  */
-package app;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 
 public class FileOperation {
     String filepath;
+    private final static Logger LOGGER = Logger.getLogger( FileOperation.class.getName() );
 
     /**
      * @brief Reads each line in a file and directs the TM to issue a corresponding
@@ -39,7 +40,10 @@ public class FileOperation {
             while( ( line = br.readLine() ) != null )
             {
                 line = line.replace( " ", "" );
-                /** Get the action */
+                // Get the action
+                if(line.startsWith("/")){
+                    continue;
+                }
                 String transaction = line.substring( 0, line.indexOf( "(" ) );
 
                 switch( transaction )
@@ -93,7 +97,7 @@ public class FileOperation {
                         break;
 
                     default:
-                        System.out.println( "Invalid transaction" );
+                        LOGGER.info( "Invalid transaction" );
                         break;
                 }
             }
@@ -101,9 +105,5 @@ public class FileOperation {
         catch( IOException e ) {
             e.printStackTrace();
         }
-    }
-
-    void writeToFile()
-    {
     }
 }

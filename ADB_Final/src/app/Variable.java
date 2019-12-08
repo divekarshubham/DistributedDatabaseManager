@@ -1,3 +1,8 @@
+
+package app;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @file main.c
  * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
@@ -8,14 +13,7 @@
  * @copyright Copyright (c) 2019
  *
  */
-package app;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Variables for the site is created using this class
- */
 public class Variable {
     private int value;
     /* A variable can have multiple transactions holding read-locks on it */

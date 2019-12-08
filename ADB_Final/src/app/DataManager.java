@@ -1,3 +1,10 @@
+
+package app;
+
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * @file DataManager.java
  * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
@@ -8,12 +15,6 @@
  * @copyright Copyright (c) 2019
  *
  */
-package app;
-
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 public class DataManager {
     private final static Logger LOGGER = Logger.getLogger( DataManager.class.getName() );
 
@@ -139,7 +140,7 @@ public class DataManager {
     {
         for( Integer siteNo : sites.keySet() )
         {
-            System.out.println( "site " + siteNo + " -" + sites.get( siteNo ).toString() + "\n" );
+            System.out.println( "site " + siteNo + " - " + sites.get( siteNo ).toString() + "\n" );
         }
     }
 

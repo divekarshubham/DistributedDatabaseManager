@@ -1,3 +1,7 @@
+package app;
+
+import java.util.HashMap;
+
 /**
  * @file Site.java
  * @author Shubham Divekar, Himani Shah (sjd451@nyu.edu, has482@nyu.edu)
@@ -8,13 +12,7 @@
  * @copyright Copyright (c) 2019
  *
  */
-package app;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-
 public class Site {
-
 
     private HashMap<Integer, Variable> variablesForSite = new HashMap<>( 21 );
     private boolean isUp;
