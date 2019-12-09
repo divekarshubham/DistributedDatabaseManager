@@ -137,10 +137,12 @@ public class DataManager {
      */
     public void dump()
     {
+        StringBuffer dumpdata = new StringBuffer();
         for( Integer siteNo : sites.keySet() )
         {
-            System.out.println( "site " + siteNo + " - " + sites.get( siteNo ).toString() + "\n" );
+            dumpdata.append(  "\nsite " + siteNo + " - " + sites.get( siteNo ).toString() );
         }
+        LOGGER.info(dumpdata.toString());
     }
 
     /**

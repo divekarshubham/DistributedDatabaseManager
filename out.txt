@@ -1,50 +1,78 @@
-Dec 08, 2019 2:48:30 AM app.TransactionManager begin
-INFO: Begin transaction 1
-Dec 08, 2019 2:48:30 AM app.TransactionManager begin
-INFO: Begin transaction 2
-Dec 08, 2019 2:48:30 AM app.TransactionManager begin
-INFO: Begin transaction 3
-Dec 08, 2019 2:48:30 AM app.TransactionManager begin
-INFO: Begin transaction 4
-Dec 08, 2019 2:48:30 AM app.TransactionManager begin
-INFO: Begin transaction 5
-Dec 08, 2019 2:48:30 AM app.TransactionManager read
-INFO: x3 : 30 from site 4
-Dec 08, 2019 2:48:30 AM app.TransactionManager read
-INFO: x4 : 40 from site 1
-Dec 08, 2019 2:48:30 AM app.TransactionManager read
-INFO: x5 : 50 from site 6
-Dec 08, 2019 2:48:30 AM app.TransactionManager read
-INFO: x1 : 10 from site 2
-Dec 08, 2019 2:48:30 AM app.TransactionManager read
+Dec 08, 2019 11:21:16 PM app.TransactionManager write
+INFO: Operation details: Transaction: 3 began at: 2 operation type:WRITE variable:4 Val:70 from value 40
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager read
 INFO: x2 : 20 from site 1
-Dec 08, 2019 2:48:30 AM app.TransactionManager write
-INFO: READ LOCK by multiple transactions/other transaction, Adding [Operation details: Transaction: 1 began at: 0 operation type:WRITE variable:2 Val:10] to waitQueue
-Dec 08, 2019 2:48:30 AM app.TransactionManager write
-INFO: READ LOCK by multiple transactions/other transaction, Adding [Operation details: Transaction: 2 began at: 1 operation type:WRITE variable:3 Val:20] to waitQueue
-Dec 08, 2019 2:48:30 AM app.TransactionManager write
-INFO: READ LOCK by multiple transactions/other transaction, Adding [Operation details: Transaction: 3 began at: 2 operation type:WRITE variable:4 Val:30] to waitQueue
-Dec 08, 2019 2:48:30 AM app.TransactionManager write
-INFO: READ LOCK by multiple transactions/other transaction, Adding [Operation details: Transaction: 4 began at: 3 operation type:WRITE variable:5 Val:40] to waitQueue
-Dec 08, 2019 2:48:30 AM app.TransactionManager write
-INFO: READ LOCK by multiple transactions/other transaction, Adding [Operation details: Transaction: 5 began at: 4 operation type:WRITE variable:1 Val:50] to waitQueue
-Dec 08, 2019 2:48:30 AM app.TransactionManager detectDeadlock
-INFO: Deadlock detected in [3, 4, 5, 1, 2]
-Dec 08, 2019 2:48:30 AM app.TransactionManager abort
-INFO: Aborting transaction Transaction: 5 began at: 4
-Dec 08, 2019 2:48:30 AM app.TransactionManager write
-INFO: Operation details: Transaction: 4 began at: 3 operation type:WRITE variable:5 Val:40 from value 50
-Dec 08, 2019 2:48:30 AM app.TransactionManager commit
-INFO: Commiting trasaction Transaction: 4 began at: 3
-Dec 08, 2019 2:48:30 AM app.TransactionManager write
-INFO: Operation details: Transaction: 3 began at: 2 operation type:WRITE variable:4 Val:30 from value 40
-Dec 08, 2019 2:48:30 AM app.TransactionManager commit
-INFO: Commiting trasaction Transaction: 3 began at: 2
-Dec 08, 2019 2:48:30 AM app.TransactionManager write
-INFO: Operation details: Transaction: 2 began at: 1 operation type:WRITE variable:3 Val:20 from value 30
-Dec 08, 2019 2:48:30 AM app.TransactionManager commit
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager fail
+INFO: Site 2 failed
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager read
+INFO: x2 : 20 from site 1
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager recover
+INFO: Site 2 recovered
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager fail
+INFO: Site 1 failed
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager fail
+INFO: Site 3 failed
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager fail
+INFO: Site 4 failed
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager fail
+INFO: Site 5 failed
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager fail
+INFO: Site 6 failed
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager fail
+INFO: Site 7 failed
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager fail
+INFO: Site 8 failed
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager fail
+INFO: Site 9 failed
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager fail
+INFO: Site 10 failed
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager read
+INFO: Adding [Operation details: Transaction: 1 began at: 0 operation type:READ variable:6 ] to site down queue
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager write
+INFO: Operation details: Transaction: 2 began at: 1 operation type:WRITE variable:6 Val:77 from value 60
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager end
+INFO: Aborting the transaction 3 since a corresponding site previously failed
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager abort
+INFO: Aborting transaction Transaction: 3 began at: 2
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager commit
 INFO: Commiting trasaction Transaction: 2 began at: 1
-Dec 08, 2019 2:48:30 AM app.TransactionManager write
-INFO: Operation details: Transaction: 1 began at: 0 operation type:WRITE variable:2 Val:10 from value 20
-Dec 08, 2019 2:48:30 AM app.TransactionManager commit
-INFO: Commiting trasaction Transaction: 1 began at: 0
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager read
+INFO: x6 : 77 from site 2
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager end
+INFO: Aborting the transaction 1 since a corresponding site previously failed
+
+Dec 08, 2019 11:21:16 PM app.TransactionManager abort
+INFO: Aborting transaction Transaction: 1 began at: 0
+
+Dec 08, 2019 11:21:16 PM app.DataManager dump
+INFO: 
+site 1 - siteNo:1 isUp:false x2: 20, x4: 40, x6: 60, x8: 80, x10: 100, x12: 120, x14: 140, x16: 160, x18: 180, x20: 200,
+site 2 - siteNo:2 isUp:true x1: 10, x2: 20, x4: 40, x6: 77, x8: 80, x10: 100, x11: 110, x12: 120, x14: 140, x16: 160, x18: 180, x20: 200,
+site 3 - siteNo:3 isUp:false x2: 20, x4: 40, x6: 60, x8: 80, x10: 100, x12: 120, x14: 140, x16: 160, x18: 180, x20: 200,
+site 4 - siteNo:4 isUp:false x2: 20, x3: 30, x4: 40, x6: 60, x8: 80, x10: 100, x12: 120, x13: 130, x14: 140, x16: 160, x18: 180, x20: 200,
+site 5 - siteNo:5 isUp:false x2: 20, x4: 40, x6: 60, x8: 80, x10: 100, x12: 120, x14: 140, x16: 160, x18: 180, x20: 200,
+site 6 - siteNo:6 isUp:false x2: 20, x4: 40, x5: 50, x6: 60, x8: 80, x10: 100, x12: 120, x14: 140, x15: 150, x16: 160, x18: 180, x20: 200,
+site 7 - siteNo:7 isUp:false x2: 20, x4: 40, x6: 60, x8: 80, x10: 100, x12: 120, x14: 140, x16: 160, x18: 180, x20: 200,
+site 8 - siteNo:8 isUp:false x2: 20, x4: 40, x6: 60, x7: 70, x8: 80, x10: 100, x12: 120, x14: 140, x16: 160, x17: 170, x18: 180, x20: 200,
+site 9 - siteNo:9 isUp:false x2: 20, x4: 40, x6: 60, x8: 80, x10: 100, x12: 120, x14: 140, x16: 160, x18: 180, x20: 200,
+site 10 - siteNo:10 isUp:false x2: 20, x4: 40, x6: 60, x8: 80, x9: 90, x10: 100, x12: 120, x14: 140, x16: 160, x18: 180, x19: 190, x20: 200,

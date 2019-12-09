@@ -1,7 +1,5 @@
 package app;
 
-import sun.plugin.javascript.navig.Array;
-
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -61,7 +59,7 @@ public class TransactionManager {
      */
     public void recover( int siteNumber )
     {
-        LOGGER.info( "Site " + siteNumber + " recovered" );
+        LOGGER.info( "Site " + siteNumber + " recovered\n" );
         Site s = dm.onRecovery( siteNumber );
         executeSiteDownQueueOperations( s );
     }
@@ -74,7 +72,7 @@ public class TransactionManager {
      */
     public void fail( int siteNumber )
     {
-        LOGGER.info( "Site " + siteNumber + " failed" );
+        LOGGER.info( "Site " + siteNumber + " failed\n" );
 
         for( Transaction t: activeTransactions.values() )
         {
@@ -121,7 +119,7 @@ public class TransactionManager {
     public void begin( int transactionNumber )
     {
         activeTransactions.put( transactionNumber, new Transaction( transactionNumber, false, timer++ ) );
-        LOGGER.info( "Begin transaction " + transactionNumber );
+        LOGGER.fine( "Begin transaction " + transactionNumber );
     }
 
     /**
@@ -134,14 +132,14 @@ public class TransactionManager {
     {
         activeTransactions.put( transactionNumber, new Transaction( transactionNumber, true, timer++ ) );
         readOnlyLastCommitedValue.put( transactionNumber, dm.lastCommitedValuesForReadOnly() );
-        LOGGER.info( "Begin readonly transaction " + transactionNumber );
+        LOGGER.fine( "Begin readonly transaction " + transactionNumber );
     }
 
     /**
      * This function is called when transaction ends
      *
      * If site was previously failed, it aborts that transaction
-     * It also aborts the transaction if no sites that were used to perform transaction are available for that transaction
+     * It also aborts the transaction if no sites that were used to perform operation are available for that transaction
      * Else it commits the transaction
      * @param transactionNumber
      */
@@ -155,7 +153,7 @@ public class TransactionManager {
         /** Performing validations */
         if( abortTransaction.contains( t ) )
         {
-            LOGGER.info( "Aborting the transaction " + transactionNumber + " since a corresponding site previously failed" );
+            LOGGER.info( "Aborting the transaction " + transactionNumber + " since a corresponding site previously failed\n" );
             abort( t.getTransactionNumber() );
             abortTransaction.remove( t );
             return;
@@ -167,7 +165,7 @@ public class TransactionManager {
         {
             if( !checkIsSiteUp( entry.getValue() ) )
             {
-                LOGGER.info( "Aborting the transaction since no sites are available" );
+                LOGGER.info( "Aborting the transaction since no sites are available\n" );
                 abort( transactionNumber );
                 return;
             }
@@ -266,7 +264,7 @@ public class TransactionManager {
         LOGGER.fine( "in commit" );
         waitForGraph.removeEdges( transactionNumber );
         Transaction t = activeTransactions.get( transactionNumber );
-        LOGGER.info( "Commiting trasaction " + t );
+        LOGGER.info( "Commiting trasaction " + t +"\n");
         Map<Operation, ArrayList<Site> > lockedVariables = t.getVariablesLocked();
         Set<Integer> updated_vars = new HashSet<>();
 
@@ -317,7 +315,7 @@ public class TransactionManager {
         Transaction t = activeTransactions.get( transactionNumber );
         Map<Operation, ArrayList<Site> > lockedVariables = t.getVariablesLocked();
         Set<Integer> updated_vars = new HashSet<>();
-        LOGGER.info( "Aborting transaction " + t );
+        LOGGER.info( "Aborting transaction " + t +"\n");
 
         for( Operation op : lockedVariables.keySet() )
         {
@@ -485,7 +483,7 @@ public class TransactionManager {
 
         if( !deadlockedVertices.isEmpty() )
         {
-            LOGGER.info( "Deadlock detected in " + deadlockedVertices );
+            LOGGER.info( "Deadlock detected in " + deadlockedVertices +"\n");
 
             for( Integer transNumber : deadlockedVertices )
             {
@@ -529,7 +527,7 @@ public class TransactionManager {
 
         if( upSites.isEmpty() )
         {
-            LOGGER.info( "All corresponding sites down, adding [" + op + "] to wait for sites waitQueue" );
+            LOGGER.info( "All corresponding sites down, adding [" + op + "] to wait for sites waitQueue\n" );
             waitSiteDownQueue.add( op );
             return;
         }
@@ -557,7 +555,7 @@ public class TransactionManager {
             {
                 setLock( upSites, op );
                 op.getTransaction().addVariableLocked( op, upSites );
-                LOGGER.info( "x" + op.getVariableNumber() + " : " + variable.getValue() + " from site " + validSite.getSiteNo() );
+                LOGGER.info( "x" + op.getVariableNumber() + " : " + variable.getValue() + " from site " + validSite.getSiteNo() +"\n");
             }
             else if( ( variable.getLockType() == LockType.WRITELOCK ) &&
                      ( op.getTransaction() != variable.getLockedByTransaction().get( 0 ) ) ) /* if not locked same */
@@ -567,7 +565,7 @@ public class TransactionManager {
                 if( !parsing )
                 {
                     LOGGER.info( "WRITE LOCK BY Transaction " + variable.getLockedByTransaction().get( 0 ).getTransactionNumber() + ", Adding[" + op
-                                 + "] to waitQueue." );
+                                 + "] to waitQueue.\n" );
                     waitQueue.add( op );
                     /* Adding to waitforgraph & deadlock detection */
                     waitForGraph.addEdge( op.getTransaction().getTransactionNumber(),
@@ -584,14 +582,14 @@ public class TransactionManager {
                      ( op.getTransaction() == variable.getLockedByTransaction().get( 0 ) ) )
             {
                 LOGGER.info(
-                    "x" + op.getVariableNumber() + " : " + tempVariables.get( op.getVariableNumber() ).getValue() + " from site " + validSite.getSiteNo() );
+                    "x" + op.getVariableNumber() + " : " + tempVariables.get( op.getVariableNumber() ).getValue() + " from site " + validSite.getSiteNo() +"\n");
             }
             else if( variable.getLockType() == LockType.READLOCK )
             {
                 if( variable.getLockedByTransaction().contains( op.getTransaction() ) )
                 {
                     LOGGER.info( "x" + op.getVariableNumber() + " : "
-                                 + tempVariables.get( op.getVariableNumber() ).getValue() + " from site " + validSite.getSiteNo() );
+                                 + tempVariables.get( op.getVariableNumber() ).getValue() + " from site " + validSite.getSiteNo() +"\n");
                 }
                 else /* all readlocks */
                 {
@@ -611,7 +609,7 @@ public class TransactionManager {
                     {
                         if( !parsing )
                         {
-                            LOGGER.info( "WRITE transaction waiting for lock, Adding[" + op + "] to waitQueue" );
+                            LOGGER.info( "WRITE transaction waiting for lock, Adding[" + op + "] to waitQueue\n" );
                             waitQueue.add( op );
 
                             if( !inWaitQueue )
@@ -647,14 +645,14 @@ public class TransactionManager {
                     {
                         setLock( upSites, op );
                         op.getTransaction().addVariableLocked( op, upSites );
-                        LOGGER.info( "x" + op.getVariableNumber() + " : " + variable.getValue() + " from site " + validSite.getSiteNo() );
+                        LOGGER.info( "x" + op.getVariableNumber() + " : " + variable.getValue() + " from site " + validSite.getSiteNo() +"\n");
                     }
                 }
             }
         }
         else
         {
-            LOGGER.info( "Adding [" + op + "] to site down queue" );
+            LOGGER.info( "Adding [" + op + "] to site down queue\n" );
             waitSiteDownQueue.add( op );
         }
     }
@@ -677,7 +675,7 @@ public class TransactionManager {
         if( upSites.isEmpty() )
         {
             waitSiteDownQueue.add( op );
-            LOGGER.info( "All corresponding sites down, adding [" + op + "] to wait for sites waitQueue" );
+            LOGGER.info( "All corresponding sites down, adding [" + op + "] to wait for sites waitQueue\n" );
             return;
         }
         else
@@ -689,7 +687,7 @@ public class TransactionManager {
             {
                 setLock( upSites, op );
                 op.getTransaction().addVariableLocked( op, upSites );
-                LOGGER.info( op + " from value " + variable.getValue() );
+                LOGGER.info( op + " from value " + variable.getValue() +"\n");
                 tvariable.setValue( op.getValue() );
             }
             else
@@ -697,7 +695,7 @@ public class TransactionManager {
                 if( ( variable.getLockType() == LockType.WRITELOCK ) &&
                     ( op.getTransaction() == variable.getLockedByTransaction().get( 0 ) ) )
                 {
-                    LOGGER.info( op + " from value " + tvariable.getValue() );
+                    LOGGER.info( op + " from value " + tvariable.getValue() +"\n");
                     tvariable.setValue( op.getValue() );
                     op.getTransaction().addVariableLocked( op, upSites );
                 }
@@ -708,7 +706,7 @@ public class TransactionManager {
                     {
                         waitQueue.add( op );
                         LOGGER.info( "WRITE lock by transaction " + variable.getLockedByTransaction().get( 0 ).getTransactionNumber() + ", Adding[" + op
-                                     + "] to waitQueue" );
+                                     + "] to waitQueue" +"\n");
                         waitForGraph.addEdge( op.getTransaction().getTransactionNumber(),
                                               variable.getLockedByTransaction().get( 0 ).getTransactionNumber(),
                                               op.getVariableNumber() );
@@ -737,7 +735,7 @@ public class TransactionManager {
                     {
                         promoteLock( upSites, op );
                         op.getTransaction().addVariableLocked( op, upSites );
-                        LOGGER.info( op + " from value " + tvariable.getValue() );
+                        LOGGER.info( op + " from value " + tvariable.getValue() +"\n");
                         tvariable.setValue( op.getValue() );
                     }
                     else
@@ -745,7 +743,7 @@ public class TransactionManager {
                         if( !parsing )
                         {
                             LOGGER.info( "READ LOCK by multiple transactions/other transaction, Adding [" + op
-                                         + "] to waitQueue" );
+                                         + "] to waitQueue\n" );
                             waitQueue.add( op );
 
                             /* if no transaction in waitQ, wait for all the transactions to give up their read locks*/
